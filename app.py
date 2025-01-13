@@ -96,34 +96,34 @@ def initialization(file: str):
     Answer only with the succinct context and nothing else.
     """
 
-    context_create_chain = llm | StrOutputParser()
-
-    for i, split in enumerate(all_splits):
-        response = client.messages.create(
-            model="claude-3-haiku-20240307",
-            max_tokens=1024,
-            temperature=0.0,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": DOCUMENT_CONTEXT_PROMPT.format(doc_content=full_document_content),
-                            "cache_control": {"type": "ephemeral"}
-                            # we will make use of prompt caching for the full documents
-                        },
-                        {
-                            "type": "text",
-                            "text": CHUNK_CONTEXT_PROMPT.format(chunk_content=split),
-                        }
-                    ]
-                }
-            ],
-            extra_headers={"anthropic-beta": "prompt-caching-2024-07-31"}
-        )
-        all_splits[i].page_content += "/n" + response.content[0].text
-        print(all_splits[i].page_content)
+    # context_create_chain = llm | StrOutputParser()
+    #
+    # for i, split in enumerate(all_splits):
+    #     response = client.messages.create(
+    #         model="claude-3-haiku-20240307",
+    #         max_tokens=1024,
+    #         temperature=0.0,
+    #         messages=[
+    #             {
+    #                 "role": "user",
+    #                 "content": [
+    #                     {
+    #                         "type": "text",
+    #                         "text": DOCUMENT_CONTEXT_PROMPT.format(doc_content=full_document_content),
+    #                         "cache_control": {"type": "ephemeral"}
+    #                         # we will make use of prompt caching for the full documents
+    #                     },
+    #                     {
+    #                         "type": "text",
+    #                         "text": CHUNK_CONTEXT_PROMPT.format(chunk_content=split),
+    #                     }
+    #                 ]
+    #             }
+    #         ],
+    #         extra_headers={"anthropic-beta": "prompt-caching-2024-07-31"}
+    #     )
+    #     all_splits[i].page_content += "/n" + response.content[0].text
+    #     print(all_splits[i].page_content)
     db = DocArrayInMemorySearch.from_documents(all_splits, embeddings)
     retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 2})
 
@@ -398,7 +398,8 @@ def initialization(file: str):
         chain = prompt | llm | parser
 
         question = state["questions"][-1]
-        messages = state["summary"]
+        # messages = state["summary"]
+        messages = ""
 
         response = chain.invoke(
             {
@@ -531,6 +532,11 @@ if uploaded_file is not None:
 
             prompt = st.chat_input("Hi, what do you want to ask?")
             st.write("")
+
+            memory = {
+                questions: [],
+                answers: []
+            }
 
             if prompt:
                 with st.chat_message("user"):
