@@ -2,8 +2,8 @@ import uuid
 import streamlit as st
 from dotenv import load_dotenv
 
-# Ваши инициализации
-from question_asnwer_graph import initialization as qa_initialization
+# Ваши инициализации // Initializing
+from question_answer_graph import initialization as qa_initialization
 from simple_conversation import initialization as simple_conversation_initialization
 from final_feedback_conversation import initialization as final_feedback_conversation_initialization
 
