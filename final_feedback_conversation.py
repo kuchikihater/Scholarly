@@ -90,7 +90,7 @@ def initialization():
 
             First, determine whether the user question is relevant to your previously made final feedback or not.
 
-            If the user question is relegvant to your final feedback, analyse the summary and Q&A List once more and give a fitting response, explaining your decisionmaking.
+            If the user question is relevant to your final feedback, analyse the summary and Q&A List once more and give a fitting response, explaining your decisionmaking.
             If the user question is not relevant to your final feedback, tell the user politely to ask a more relevant question.
             """
         )
@@ -102,7 +102,7 @@ def initialization():
 
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query, "prev_response": prev_response})
-        
+        state["response"] = response
         return {"response": response}
     
     def more_questions_or_not(state: State):
