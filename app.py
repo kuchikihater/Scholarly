@@ -15,7 +15,13 @@ st.set_page_config(layout="wide")
 float_init(theme=True, include_unstable_primary=False)
 
 def chat_content():
-    user_input = st.session_state.get('content', "").strip()
+    if st.session_state.get('prebuilt_question', ""):
+        user_input = st.session_state.prebuilt_question
+        st.session_state.prebuilt_questions.remove(st.session_state.prebuilt_question)
+        st.session_state.prebuilt_question = "" 
+    else:
+        user_input = st.session_state.get('content', "").strip()
+
     if not user_input:
         return
 
@@ -74,6 +80,15 @@ if "graph_fb" not in st.session_state:
 if "use_feedback_graph" not in st.session_state:
     st.session_state["use_feedback_graph"] = False
 
+if "prebuilt_questions" not in st.session_state:
+    st.session_state.prebuilt_questions = [
+        "What is the main research question of this paper?", 
+        "What are the key findings of the study?",
+        "What methodology was used in this research?",
+        "What are the limitations of the study?",
+        "How does this work contribute to the existing literature?",
+        "Are the conclusions well-supported by the evidence?",
+    ]
 
 st.title("Hey there! I'm Scholarly. Ready to review your paper and give you feedback. Let’s get started!")
 
@@ -103,6 +118,13 @@ with col_left:
     for msg in st.session_state["messages"]:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+
+    st.write("Suggested Questions:")
+    cols = st.columns(3)
+    for i, question in enumerate(st.session_state.prebuilt_questions):
+        with cols[i % 3]:
+            if st.button(question, key=f"prebuilt_q{i}"):
+                st.session_state.prebuilt_question = question
 
     with st.container():
         st.chat_input(
