@@ -87,7 +87,7 @@ if "prebuilt_questions" not in st.session_state:
         "What methodology was used in this research?",
         "What are the limitations of the study?",
         "How does this work contribute to the existing literature?",
-        "Are the conclusions well-supported by the evidence?",
+        "Are the conclusions well-supported by the evidence?"
     ]
 
 st.title("Hey there! I'm Scholarly. Ready to review your paper and give you feedback. Let’s get started!")
