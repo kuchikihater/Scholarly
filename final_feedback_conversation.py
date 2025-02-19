@@ -29,21 +29,37 @@ def initialization():
     def chatbot(state: State):
         prompt = PromptTemplate.from_template(
             """
-            You are an AI Assistant that decides whether a paper should be published or not. 
-            Your decision is based on:
+            You are an AI Assistant tasked with providing a recommendation on whether a scientific paper should be published. 
+            Your recommendation should be based on:
+
             1) The provided summary of the paper.
-            2) A list of questions and answers related to the paper.
-            
-            You must output either "accept" or "reject" as the final decision. 
-            And also give reasoning, why you decided so based on if answers on questions where positive or negative, also use summary 
+            2) A list of questions and answers related to the paper, representing a conversation about the paper.
+
+            Your response should be structured as follows:
+
+            **Recommended:** [Your recommendation - either "Accept" or "Reject"]
+            **Conversation Summary:** [Briefly summarize the key points, questions, and concerns raised in the Q&A interaction.]
+            **Reasoning:** [Provide a clear and critical explanation of the reasoning behind your recommendation. 
+            Refer to specific aspects of the paper summary and the Q&A list. Highlight both positive and negative points.]
+
+            [If and only if the recommendation is "Accept", include the following section:]
+            **Improvements Before Publishing:** [Provide a concise list of actionable suggestions for improving the paper 
+            before publication. Focus on the most important areas for improvement. Use bullet points.
+            Consider BOTH:
+                a) Specific issues and concerns raised in the Q&A.
+                b) General improvements related to the paper's structure, clarity, completeness, and presentation, based on the 
+                paper summary.
+            ]
+
             
             Here is the summary of the paper:
             {summary}
             
-            Here is the Q&A list about the paper:
+            Here is the Q&A list about the paper (representing a conversation)::
             {qa_list}
             
-            Analyze the summary and Q&A, then produce your final decision.
+            Analyze the provided information and produce your recommendation, conversation summary, reasoning, and (if applicable) 
+            improvement suggestions.
             """
         )
 
