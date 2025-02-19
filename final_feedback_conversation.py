@@ -51,7 +51,6 @@ def initialization():
                 paper summary.
             ]
 
-            
             Here is the summary of the paper:
             {summary}
             
