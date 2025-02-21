@@ -154,7 +154,7 @@ def initialization(file: str):
         If the question relates to the previous conversation, use the conversation summary to provide the answer. Otherwise, use the retrieved documents and the paper summary.
 
         For example: if you get question "What is my last question?" -Use conversation summary to provide the answer.
-        If you get question "What is the authors of paper?" - Use retrieved documents and the paper summary.
+        If you get question "Who are the authors of this paper?" - Use retrieved documents and the paper summary.
 
         Here are the retrieved documents:
         <documents>
