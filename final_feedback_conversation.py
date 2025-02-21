@@ -38,7 +38,8 @@ def initialization():
         prompt = PromptTemplate.from_template(
             """
             You are a scientific peer reviewer. The user wants to discuss a research paper before making a final decision.
-            Use the provided summary and Q&A list to answer the user's questions.
+            Use the provided summary and Q&A list to answer the user's questions. 
+            It also can be final_feedback be provided, but if place between tags <final_feedback> is empty, DO NOT pay attention
             
             Here is the summary of the paper:
             {summary}
@@ -48,15 +49,21 @@ def initialization():
             
             Here is the user question:
             {query}
+            
+            Here is final_feedback:
+            <final_feedback>
+            {final_feedback}
+            </final_feedback>
             """
         )
 
         summary = state["summary"]
         qa_list = state["qa_list"]
         query = state["questions"][-1]
+        ff = state.get("final_feedback", "")
 
         chain = prompt | llm | StrOutputParser()
-        response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query})
+        response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query, "final_feedback": ff})
         state["response"] = response
         return {"response": response}
 
@@ -109,18 +116,18 @@ def initialization():
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list})
         state["final_feedback"] = response
-        return {"final_feedback": response}
+        state["response"] = response
+        return {"final_feedback": response, "response": response}
 
     graph_builder.add_node("discuss_paper", discuss_paper)
-    graph_builder.add_node("final_feedback", final_feedback)
+    graph_builder.add_node("Finale Feedback node", final_feedback)
 
-    graph_builder.add_edge(START, "discuss_paper")
     graph_builder.add_conditional_edges(
-        "discuss_paper",
+        START,
         more_questions_or_not,
-        {"yes": "discuss_paper", "no": "final_feedback"},
+        {"yes": "discuss_paper", "no": "Finale Feedback node"},
     )
-    graph_builder.add_edge("final_feedback", END)
+    graph_builder.add_edge("Finale Feedback node", END)
 
     graph = graph_builder.compile()
     return graph
