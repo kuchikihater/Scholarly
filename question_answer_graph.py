@@ -460,7 +460,7 @@ def initialization(file: str):
 
         # Create a combined response string
         combined_response = "\n ".join(
-            [f"{i + 1}) Answer of {response['model']} : {response['response']}" for i, response in enumerate(responses)]
+            [f"{i + 1}) Answer of Reviewer {i + 1} : {response['response']}" for i, response in enumerate(responses)]
         )
 
         # Save the combined response in state["end_responses"]
