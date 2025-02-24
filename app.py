@@ -125,6 +125,8 @@ with col_left:
         with cols[i % 3]:
             if st.button(question, key=f"prebuilt_q{i}"):
                 st.session_state.prebuilt_question = question
+                chat_content()
+                st.rerun()
 
     with st.container():
         st.chat_input(
