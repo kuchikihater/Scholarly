@@ -23,7 +23,7 @@ def initialization():
 
     graph_builder = StateGraph(State)
 
-    llm = ChatOpenAI(model="gpt-4o-mini")
+    llm = ChatOpenAI(model="gpt-4o")
 
 
     def chatbot(state: State):
