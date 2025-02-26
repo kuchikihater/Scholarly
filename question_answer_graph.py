@@ -68,11 +68,10 @@ def initialization(file: str):
         summary: str
 
 
-    llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
+    llm = ChatOpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY"))
     llm1 = ChatOpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY"))
     llm2 = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
-    llm3 = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
-    # llm3 = ChatAnthropic(model="claude-3-5-sonnet-20241022", api_key=os.getenv("ANTHROPIC_API_KEY"))
+    llm3 = ChatAnthropic(model="claude-3-5-sonnet-20241022", api_key=os.getenv("ANTHROPIC_API_KEY"))
     llms = [llm1, llm2, llm3]
     embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=os.getenv("OPENAI_API_KEY"))
     loader = PyPDFLoader(file_path=file, extract_images=True)
