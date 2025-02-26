@@ -2,8 +2,7 @@ import uuid
 import streamlit as st
 from dotenv import load_dotenv
 
-# Ваши инициализации
-from question_asnwer_graph import initialization as qa_initialization
+from question_answer_graph import initialization as qa_initialization
 from simple_conversation import initialization as simple_conversation_initialization
 from final_feedback_conversation import initialization as final_feedback_conversation_initialization
 
@@ -13,6 +12,7 @@ load_dotenv()
 st.set_page_config(layout="wide")
 
 float_init(theme=True, include_unstable_primary=False)
+
 
 def chat_content():
     if st.session_state.get('prebuilt_question', ""):
@@ -30,7 +30,9 @@ def chat_content():
     if st.session_state["use_feedback_graph"] and st.session_state["graph_fb"] is not None:
         graph = st.session_state["graph_fb"]
         try:
-            response_obj = graph.invoke({"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"]})
+            response_obj = graph.invoke(
+                {"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"],
+                 "questions": [user_input]})
             response = response_obj["response"]
         except Exception as e:
             response = f"Error generating feedback: {e}"
@@ -105,8 +107,9 @@ if uploaded_file is not None:
         try:
             if st.session_state["graph_qa"] is None:
                 st.session_state["graph_qa"], st.session_state["summary"] = qa_initialization(temp_file_path)
-            st.session_state["use_qa_graph"] = True
-            st.session_state["use_feedback_graph"] = False
+            if not st.session_state["use_feedback_graph"]:
+                st.session_state["use_qa_graph"] = True
+                st.session_state["use_feedback_graph"] = False
             st.success("It's done! Now you can ask questions about the uploaded document.")
         except Exception as e:
             st.error(f"Error initializing the QA graph: {e}")

@@ -1,11 +1,15 @@
 from typing import Annotated
+import operator
+import re
+import json
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from typing_extensions import TypedDict
+from typing_extensions import TypedDict, List, Any
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
+from langchain_core.messages import AnyMessage, HumanMessage
 
 from langchain_openai import ChatOpenAI
 
@@ -13,20 +17,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 def initialization():
     class State(TypedDict):
+        questions: Annotated[List[HumanMessage], operator.add]
         summary: str
         qa_list: list
         response: str
-
+        final_feedback: str
+    
+    def extract_json_output(response: str):
+        json_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
+        json_string = json_match.group(1).strip()
+        parsed_json = json.loads(json_string)
+        return parsed_json
 
     graph_builder = StateGraph(State)
 
     llm = ChatOpenAI(model="gpt-4o")
 
-
-    def chatbot(state: State):
+    def discuss_paper(state: State):
         prompt = PromptTemplate.from_template(
             """
             You are an AI Assistant tasked with providing a recommendation on whether a scientific paper should be published. 
@@ -67,13 +76,19 @@ def initialization():
 
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list})
-        return {"response": response}
+        state["final_feedback"] = response
+        state["response"] = response
+        return {"final_feedback": response, "response": response}
 
+    graph_builder.add_node("discuss_paper", discuss_paper)
+    graph_builder.add_node("Finale Feedback node", final_feedback)
 
-    graph_builder.add_node("chatbot", chatbot)
+    graph_builder.add_conditional_edges(
+        START,
+        more_questions_or_not,
+        {"yes": "discuss_paper", "no": "Finale Feedback node"},
+    )
+    graph_builder.add_edge("Finale Feedback node", END)
 
-    graph_builder.add_edge(START, "chatbot")
-    graph_builder.add_edge("chatbot", END)
     graph = graph_builder.compile()
-
     return graph

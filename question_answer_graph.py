@@ -148,13 +148,19 @@ def initialization(file: str):
         )
 
         prompt = PromptTemplate.from_template("""
-        You are an assistant for question-answering tasks.
+        You are an assistant for question-answering tasks. See yourself as a professional peer reviewer that gives critical feedback.
         Use the following pieces of retrieved context to answer the question. Use three sentences maximum and keep the answer concise.
         If the question relates to the previous conversation, use the conversation summary to provide the answer. Otherwise, use the retrieved documents and the paper summary.
 
-        For example: if you get question "What is my last question?" -Use conversation summary to provide the answer.
-        If you get question "What is the authors of paper?" - Use retrieved documents and the paper summary.
-
+        For example: if you get questions such as "What is my last question?" -Use conversation summary to provide the answer.
+        If you get questions such as "What is the authors of paper?" - Use retrieved documents and the paper summary.
+        
+        If you're using the retrieved documents and the question is about the quality of the paper, remember your role as a professional peer reviewer and BE CRITICAL.
+        In this case, you can also think a bit before you give an critical answer.
+        
+        For example: The question: "Does this paper fulfill the criterion to be published?" - This is about the quality of the paper.
+        Whereas questions like: "What is the authors of paper?" - This is a question about facts in the paper, just give the answer you can find in the source.
+         
         Here are the retrieved documents:
         <documents>
         {documents}
@@ -241,16 +247,16 @@ def initialization(file: str):
             You are an AI assistant that specializes in analyzing user questions about a scientific paper and tells whether or not the context of the paper is needed to answer the question. 
             Your job is to create a reasoned hypothesis about whether or not to use RETRIEVER_TOOL.
 
-            RETRIEVER_TOOL: It is the tool, that retrieved parts of paper
+            RETRIEVER_TOOL: It is the tool, that retrieves parts of paper
 
             Please follow these steps to create your hypothesis:
 
             1. Carefully read and analyze the user question.
             2. Decide, if user question is related to scientific paper or not.
-            3. When user question is related to scientific paper then return then return RETRIEVER_TOOL
-            4. When user question is about previous question, history of conversation or general message, then return GENERAL
+            3. When the user question is related to scientific paper then return then return RETRIEVER_TOOL
+            4. When the user question is about the previous question, history of conversation or general message, then return GENERAL
 
-            At the end ALWAYS add user question to response
+            At the end ALWAYS add the user question to response
             Example of answer: RETRIEVER_TOOL, USER_QUESTION: About what this paper?
 
             Here is the user question:
@@ -366,7 +372,7 @@ def initialization(file: str):
             """
             You are an advanced language model tasked with improving user queries to enhance document retrieval and overall conversation quality. Your goal is to analyze the initial query and conversation history, understand the underlying semantic intent, and formulate an improved question.
 
-            DO NOT REWRITE QUESTION RELATED TO HISTORY OF CONVERSATION. For example: What is my previous question? JUST GIVE ONLY QUESTION HOW IT WAS
+            DO NOT REWRITE QUESTION RELATED TO HISTORY OF CONVERSATION. For example: What is my previous question? JUST GIVE BACK THE QUESTION AS HOW IT WAS
 
             Here is the history of the conversation:
 
@@ -453,7 +459,7 @@ def initialization(file: str):
 
         # Create a combined response string
         combined_response = "\n ".join(
-            [f"{i + 1}) Answer of {response['model']} : {response['response']}" for i, response in enumerate(responses)]
+            [f"{i + 1}) Answer of Reviewer {i + 1} : {response['response']}" for i, response in enumerate(responses)]
         )
 
         # Save the combined response in state["end_responses"]
@@ -472,23 +478,6 @@ def initialization(file: str):
         """
 
     def generate_summary(state: OverallState):
-        # First, we get any existing summary
-        # summary = state.get("summary", "")
-
-        # Create our summarization prompt
-        # if summary:
-        #
-        #     # A summary already exists
-        #     summary_message = (
-        #         f"This is summary of the conversation to date: {summary}\n\n"
-        #         "Extend the summary by taking into account the new messages above:"
-        #     )
-        #
-        # else:
-        #     summary_message = "Create a summary of the conversation above:"
-
-        # Add prompt to our history
-        # messages = state["questions"] + state["end_responses"] + [HumanMessage(content=summary_message)]
         prompt = PromptTemplate.from_template(
             """
             Your task is to summarize the whole conversation so far, including the user quesiton, the
@@ -560,21 +549,6 @@ def initialization(file: str):
         response = chain.invoke({"query": question, "summary": summary})
         return {"messages": [response], "end_responses": [response]}
 
-        # Determine whether to end or summarize the conversation
-
-    # def should_continue(state: OverallState):
-    #
-    #     """Return the next node to execute."""
-    #
-    #     messages = state["questions"] + state["end_responses"]
-    #
-    #     # If there are more than six messages, then we summarize the conversation
-    #     if len(messages) > 6:
-    #         return "Generate Summary"
-    #
-    #     # Otherwise we can just end
-    #     return END
-
     graph_builder = StateGraph(OverallState)
     graph_builder.add_node("Make Hypothesis", make_hypothesis)
     graph_builder.add_node("Direct Answer or Retrieve", retrieve_or_not)
@@ -584,10 +558,9 @@ def initialization(file: str):
     graph_builder.add_node("Generate Feedback", generate_feedback)
     graph_builder.add_node("Give End Response", end_response)
     graph_builder.add_node("Give Simple Response", generate_simple_response)
-
     graph_builder.add_node("Generate Summary", generate_summary)
-    graph_builder.add_edge("Give End Response", "Generate Summary")
-    graph_builder.add_edge("Generate Summary", END)
+
+
 
     graph_builder.add_conditional_edges(
         START,
@@ -610,7 +583,8 @@ def initialization(file: str):
     )
     graph_builder.add_edge("Rewrite User Question", "Direct Answer or Retrieve")
     graph_builder.add_edge("Single LLM Process Start", "Give End Response")
-    # graph_builder.add_edge("Give End Response", END)
+    graph_builder.add_edge("Give End Response", "Generate Summary")
+    graph_builder.add_edge("Generate Summary", END)
     graph_builder.add_edge("Generate Feedback", END)
     graph_builder.add_edge("Give Simple Response", END)
 
