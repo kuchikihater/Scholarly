@@ -38,7 +38,6 @@ load_dotenv()
 
 def initialization(file: str):
     ###Extract output from tags in string format
-    print(1)
     def extract_json_output(response: str):
         json_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
         json_string = json_match.group(1).strip()
@@ -68,7 +67,7 @@ def initialization(file: str):
         summary: str
 
 
-    llm = ChatOpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY"))
+    llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
     llm1 = ChatOpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY"))
     llm2 = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
     llm3 = ChatAnthropic(model="claude-3-5-sonnet-20241022", api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -156,7 +155,7 @@ def initialization(file: str):
         If you get questions such as "What is the authors of paper?" - Use retrieved documents and the paper summary.
         
         If you're using the retrieved documents and the question is about the quality of the paper, remember your role as a professional peer reviewer and BE CRITICAL.
-        In this case, you can also think a bit before you give an critical answer.
+        In this case, you can also think a bit before you give an critical answer. DO NOT SAY LET ME THINK, BE PROFESSIONAL
         
         For example: The question: "Does this paper fulfill the criterion to be published?" - This is about the quality of the paper.
         Whereas questions like: "What is the authors of paper?" - This is a question about facts in the paper, just give the answer you can find in the source.
@@ -277,9 +276,9 @@ def initialization(file: str):
 
     def retrieve_or_not(state: OverallState):
         if "RETRIEVER_TOOL" in state["hypothesis"]:
-            llm_with_tools = llm.bind_tools([retrieve])
+            llm_with_tools = llm1.bind_tools([retrieve])
         else:
-            llm_with_tools = llm
+            llm_with_tools = llm1
 
         response = llm_with_tools.invoke([state["hypothesis"]])
 

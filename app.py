@@ -84,12 +84,11 @@ if "use_feedback_graph" not in st.session_state:
 
 if "prebuilt_questions" not in st.session_state:
     st.session_state.prebuilt_questions = [
-        "What is the main research question of this paper?", 
-        "What are the key findings of the study?",
-        "What methodology was used in this research?",
-        "What are the limitations of the study?",
-        "How does this work contribute to the existing literature?",
-        "Are the conclusions well-supported by the evidence?"
+        "Is the title concise, informative, and accurately reflects the paper's content?",
+        "Have all authors listed appropriately and contributed significantly to the research?",
+        "Is the methodology for detecting money laundering clearly and concisely described?",
+        "Are the findings of the research adequately discussed and analyzed?",
+        "Does the paper provide a clear and insightful outlook for future research in this area?"
     ]
 
 st.title("Hey there! I'm Scholarly. Ready to review your paper and give you feedback. Let’s get started!")

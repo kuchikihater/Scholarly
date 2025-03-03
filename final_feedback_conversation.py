@@ -26,6 +26,7 @@ def initialization():
         response: str
         final_feedback: str
 
+
     def extract_json_output(response: str):
         json_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
         json_string = json_match.group(1).strip()
@@ -50,11 +51,6 @@ def initialization():
 
             Here is the user question:
             {query}
-
-            Here is final_feedback:
-            <final_feedback>
-            {final_feedback}
-            </final_feedback>
             """
         )
 
@@ -64,23 +60,26 @@ def initialization():
         ff = state.get("final_feedback", "")
 
         chain = prompt | llm | StrOutputParser()
-        response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query, "final_feedback": ff})
+        response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query})
         state["response"] = response
         return {"response": response}
 
     def more_questions_or_not(state: State):
         prompt = PromptTemplate.from_template(
             """
-            Your task is to determine if the user wants to ask further follow-up questions or if they are ready for the final feedback.
+            Your task is to determine if the user wants to get final decision or feedback about acceptance of paper or ask
+            follow-up questions
 
             User input:
             {query}
-
-            If the user still has more questions, return:
+            
+            If the user is about to make final decision or feedback, return:
             {{ "feedback": "yes" }}
 
-            If the user is ready for the final decision, return:
-            {{ "feedback": "no" }}
+            If the user question is something else, return:
+            {{ "feedback": "no"}}
+
+            
 
             Wrap your answer in <output> tags.
             """
@@ -93,6 +92,12 @@ def initialization():
 
         return "yes" if response_json["feedback"] == "yes" else "no"
 
+    def check_generation(state):
+        if state["flag"] == 0:
+                return "more questions"
+        else:
+            return "question about feedback"
+
     def final_feedback(state: State):
         prompt = PromptTemplate.from_template(
             """
@@ -101,7 +106,7 @@ def initialization():
             You are a scientific peer reviewer, more specific a subreviewer. The User is the main reviewer and your task is to assist them by giving a recommendation on wether the uploaded paper should be accepted or declined for publishing.
             Based on the paper summary and the Q&A list, provide a final recommendation on whether the paper should be accepted for publication or not.
 
-            Your answer should contain a clear decision (Accept or Reject) and a justification based on the summary and the Q&A list.
+            Your answer should contain a clear recommendation (Accept or Reject) and a justification based on the summary and the Q&A list.
 
             Here is the summary:
             {summary}
@@ -126,8 +131,11 @@ def initialization():
     graph_builder.add_conditional_edges(
         START,
         more_questions_or_not,
-        {"yes": "discuss_paper", "no": "Finale Feedback node"},
+        {"no": "discuss_paper", "yes": "Finale Feedback node"},
     )
     graph_builder.add_edge("Finale Feedback node", END)
 
     graph = graph_builder.compile()
+    return graph
+
+
