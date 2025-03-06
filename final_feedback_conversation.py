@@ -101,18 +101,37 @@ def initialization():
     def final_feedback(state: State):
         prompt = PromptTemplate.from_template(
             """
-            Now that all discussions have taken place, it's time to make a final decision.
+            You are an AI Assistant tasked with providing a recommendation on whether a scientific paper should be published.
+            You take on the role of a subreviewer for a peer review of a scientific paper. The user is the main reviewer.
+ 
+            Your recommendation should be based on:
+            1) The provided summary of the paper.
+            2) A list of questions and answers related to the paper, representing a conversation about the paper.
 
-            You are a scientific peer reviewer, more specific a subreviewer. The User is the main reviewer and your task is to assist them by giving a recommendation on wether the uploaded paper should be accepted or declined for publishing.
-            Based on the paper summary and the Q&A list, provide a final recommendation on whether the paper should be accepted for publication or not.
+            Your response should be structured as follows:
 
-            Your answer should contain a clear recommendation (Accept or Reject) and a justification based on the summary and the Q&A list.
+            Recommended: [Your recommendation - either "Accept" or "Reject"]
+            Conversation Summary: [Briefly summarize the key points, questions, and concerns raised in the Q&A interaction.]
+            Reasoning: [Provide a clear and critical explanation of the reasoning behind your recommendation. 
+            Refer to specific aspects of the paper summary and the Q&A list. Highlight both positive and negative points.]
+            Improvements Before Publishing: [Provide a concise list of actionable suggestions for improving the paper 
+            before publication. Focus on the most important areas for improvement. Use bullet points.
+            Consider BOTH:
+                a) Specific issues and concerns raised in the Q&A.
+                b) General improvements related to the paper's structure, clarity, completeness, and presentation, based on the 
+                paper summary.
+            ]
 
-            Here is the summary:
+            Here is the summary of the paper:
             {summary}
-
-            Here is the Q&A list:
+            
+            Here is the Q&A list about the paper (representing a conversation):
             {qa_list}
+            
+            Analyze the provided information and produce your recommendation, conversation summary, reasoning, 
+            and improvement suggestions.
+
+            Finally, ask the main reviewer (the user) if they have any follow-up questions.
             """
         )
 
