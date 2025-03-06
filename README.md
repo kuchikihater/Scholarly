@@ -71,6 +71,17 @@ Meeting Transcriptions - created bullet points from various meetings to form cle
 
 Application Structure Planning - design of the application structure and modes.
 
-Prompt Engineering - Prompts for final feedback mode to give the role of an assistant reviewer. Also with emphasis on giving a recommendation instead of making a decision.
+Prompt Engineering - Assisted  Shohrukhbek in engineering prompts for final feedback mode to give the role of an assistant reviewer. Also with emphasis on giving a recommendation instead of making a decision.
 
 Documentation - README documentation and setup guide.
+
+# Tsan-Yu's Contribution
+
+Paper Finding - Found a relevant research that supports the idea of LLMs as helpful peer reviewers.
+
+Memory Development - Implemented the component where the chat history is summerized and the length of messages is controlled.
+
+Memory Integration - Connected the memory component to the application.
+
+Prompt Engineering - Made the question-answering feedback more critical instead of always positive/cheerful.
+
