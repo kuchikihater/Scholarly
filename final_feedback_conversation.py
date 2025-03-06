@@ -37,7 +37,9 @@ def initialization():
     llm = ChatOpenAI(model="gpt-4o")
 
     def check_generation_feedback(state: State):
-        return "yes" if state.get("flag", 0) == 1 else "no"
+        response = "yes" if state.get("flag", 0) == 1 else "no"
+        return {"response": response}
+    
 
     def discuss_paper(state: State):
         prompt = PromptTemplate.from_template(
@@ -88,8 +90,8 @@ def initialization():
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"query": query})
         response_json = extract_json_output(response)
-
-        return "yes" if response_json["feedback"] == "yes" else "no"
+        response = "yes" if response_json["feedback"] == "yes" else "no"
+        return {"response": response}
 
     def final_feedback(state: State):
         prompt = PromptTemplate.from_template(
@@ -178,7 +180,7 @@ def initialization():
     graph_builder.add_node("followup_question", follow_up_questions)
     graph_builder.add_node("feedback_or_questions", more_questions_or_not)
     graph_builder.add_node("discuss_paper", discuss_paper)
-    graph_builder.add_node("Finale Feedback node", final_feedback)
+    graph_builder.add_node("final_feedback_generation", final_feedback)
 
     graph_builder.add_edge(START, "flag_check")
     graph_builder.add_conditional_edges(
@@ -189,9 +191,11 @@ def initialization():
     graph_builder.add_conditional_edges(
         "feedback_or_questions", 
         more_questions_or_not, 
-        {"no": "discuss_paper", "yes": "Finale Feedback node"}
+        {"no": "discuss_paper", "yes": "final_feedback_generation"}
     )
-    graph_builder.add_edge("Finale Feedback node", END)
+    graph_builder.add_edge("followup_question", END)
+    graph_builder.add_edge("discuss_paper", END)
+    graph_builder.add_edge("final_feedback_generation", END)
 
     graph = graph_builder.compile()
     return graph
