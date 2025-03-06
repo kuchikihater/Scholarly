@@ -72,3 +72,5 @@ Meeting Transcriptions - created bullet points from various meetings to form cle
 Application Structure Planning - design of the application structure and modes.
 
 Prompt Engineering - Prompts for final feedback mode to give the role of an assistant reviewer. Also with emphasis on giving a recommendation instead of making a decision.
+
+Documentation - README documentation and setup guide.
