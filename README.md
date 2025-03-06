@@ -71,7 +71,7 @@ Meeting Transcriptions - created bullet points from various meetings to form cle
 
 Application Structure Planning - design of the application structure and modes.
 
-Prompt Engineering - Assisted  Shohrukhbek in engineering prompts for final feedback mode to give the role of an assistant reviewer. Also with emphasis on giving a recommendation instead of making a decision.
+Prompt Engineering - Engineered prompts in final feedback mode to handle follow up questions and conditional edges.
 
 Documentation - README documentation and setup guide.
 

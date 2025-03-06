@@ -25,7 +25,7 @@ def initialization():
         qa_list: list
         response: str
         final_feedback: str
-
+        flag: int 
 
     def extract_json_output(response: str):
         json_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
@@ -36,12 +36,14 @@ def initialization():
     graph_builder = StateGraph(State)
     llm = ChatOpenAI(model="gpt-4o")
 
+    def check_generation_feedback(state: State):
+        return "yes" if state.get("flag", 0) == 1 else "no"
+
     def discuss_paper(state: State):
         prompt = PromptTemplate.from_template(
             """
             You are a scientific peer reviewer. The user wants to discuss a research paper before making a final decision.
             Use the provided summary and Q&A list to answer the user's questions. 
-            It also can be final_feedback be provided, but if place between tags <final_feedback> is empty, DO NOT pay attention
 
             Here is the summary of the paper:
             {summary}
@@ -57,8 +59,7 @@ def initialization():
         summary = state["summary"]
         qa_list = state["qa_list"]
         query = state["questions"][-1]
-        ff = state.get("final_feedback", "")
-
+        
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query})
         state["response"] = response
@@ -79,8 +80,6 @@ def initialization():
             If the user question is something else, return:
             {{ "feedback": "no"}}
 
-            
-
             Wrap your answer in <output> tags.
             """
         )
@@ -91,12 +90,6 @@ def initialization():
         response_json = extract_json_output(response)
 
         return "yes" if response_json["feedback"] == "yes" else "no"
-
-    def check_generation(state):
-        if state["flag"] == 0:
-                return "more questions"
-        else:
-            return "question about feedback"
 
     def final_feedback(state: State):
         prompt = PromptTemplate.from_template(
@@ -133,6 +126,7 @@ def initialization():
 
             Finally, ask the main reviewer (the user) if they have any follow-up questions.
             """
+
         )
 
         summary = state["summary"]
@@ -142,19 +136,62 @@ def initialization():
         response = chain.invoke({"summary": summary, "qa_list": qa_list})
         state["final_feedback"] = response
         state["response"] = response
+        state["flag"] = 1  
         return {"final_feedback": response, "response": response}
+    
+    def follow_up_questions(state: State):
+        prompt = PromptTemplate.from_template(
+            """
+            You are a subreviewer for a peer reviewing of a research paper continuing a scientific peer review discussion. The user has already received final feedback on a research paper 
+            but now has follow-up questions.
 
+            Here is the final feedback that was provided by you:
+            {final_feedback}
+
+            Here is the summary of the paper:
+            {summary}
+
+            Here is the Q&A list from the previous discussion:
+            {qa_list}
+
+            Here is the user's follow-up question:
+            {query}
+
+            Answer the follow-up question clearly, referring to the final feedback, summary, and Q&A list where relevant.
+            If necessary, clarify any points from the final feedback. Keep the response precise and helpful.
+            Do not be afraid to also highlight positive AND negative points from your feedback.
+            """
+        )
+
+        summary = state["summary"]
+        qa_list = state["qa_list"]
+        final_feedback = state["final_feedback"]
+        query = state["questions"][-1]
+
+        chain = prompt | llm | StrOutputParser()
+        response = chain.invoke({"final_feedback": final_feedback, "summary": summary, "qa_list": qa_list, "query": query})
+    
+        state["response"] = response
+        return {"response": response}
+
+    graph_builder.add_node("flag_check", check_generation_feedback)
+    graph_builder.add_node("followup_question", follow_up_questions)
+    graph_builder.add_node("feedback_or_questions", more_questions_or_not)
     graph_builder.add_node("discuss_paper", discuss_paper)
     graph_builder.add_node("Finale Feedback node", final_feedback)
 
+    graph_builder.add_edge(START, "flag_check")
     graph_builder.add_conditional_edges(
-        START,
-        more_questions_or_not,
-        {"no": "discuss_paper", "yes": "Finale Feedback node"},
+        "flag_check", 
+        check_generation_feedback, 
+        {"yes": "followup_question", "no": "feedback_or_questions"}
+    )
+    graph_builder.add_conditional_edges(
+        "feedback_or_questions", 
+        more_questions_or_not, 
+        {"no": "discuss_paper", "yes": "Finale Feedback node"}
     )
     graph_builder.add_edge("Finale Feedback node", END)
 
     graph = graph_builder.compile()
     return graph
-
-
