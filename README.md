@@ -23,7 +23,7 @@ The application is split into three modes:
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone <https://git.rwth-aachen.de/i5/teaching/bllma-lab/ws2024/magic-conches.git>
+git clone https://git.rwth-aachen.de/i5/teaching/bllma-lab/ws2024/magic-conches.git
 cd scholarly-peer-review-app
 
 # Create a virtual environment
