@@ -10,8 +10,8 @@ from langchain_core.messages import HumanMessage
 
 from langchain_openai import ChatOpenAI
 
-from src.config import OPENAI_MODEL_GPT4O
-from src.utils.helpers import extract_json_output
+from ..config import OPENAI_MODEL_GPT4O
+from ..utils.helpers import extract_json_output
 
 from dotenv import load_dotenv
 

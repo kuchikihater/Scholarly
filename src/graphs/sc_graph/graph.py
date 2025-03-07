@@ -9,7 +9,7 @@ from langgraph.graph.message import add_messages
 
 from langchain_openai import ChatOpenAI
 
-from src.config import OPENAI_MODEL_GPT4O_MINI
+from ..config import OPENAI_MODEL_GPT4O_MINI
 
 from dotenv import load_dotenv
 
