@@ -13,50 +13,54 @@ st.set_page_config(layout="wide")
 
 float_init(theme=True, include_unstable_primary=False)
 
-
-def chat_content():
+def get_user_input():
+    """Gets user input from pre-built questions or chat input."""
     if st.session_state.get('prebuilt_question', ""):
         user_input = st.session_state.prebuilt_question
         st.session_state.prebuilt_questions.remove(st.session_state.prebuilt_question)
         st.session_state.prebuilt_question = "" 
     else:
         user_input = st.session_state.get('content', "").strip()
+    return user_input
 
+def get_graph():
+    """Selects the appropriate graph based on session state."""
+    if st.session_state["use_feedback_graph"] and st.session_state["graph_fb"] is not None:
+        return st.session_state["graph_fb"], "fb"
+    elif st.session_state["use_qa_graph"] and st.session_state["graph_qa"] is not None:
+        return st.session_state["graph_qa"], "qa"
+    else:
+        return st.session_state["graph_sc"], "sc"
+    
+def invoke_graph(graph, user_input, graph_type):
+    """Invokes the appropriate graph and returns the response string."""
+    try:
+        if graph_type == "fb":
+            response_obj = graph.invoke(
+                {"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"],
+                "questions": [user_input]})
+            return response_obj["response"]  
+        elif graph_type == "qa":   
+            response_obj = graph.invoke({"questions": [user_input]}, config=st.session_state["config"])
+            if "end_responses" in response_obj and response_obj["end_responses"]:
+                return response_obj["end_responses"][-1]
+            return "No response found."
+        else: 
+            response_obj = graph.invoke({"messages": [user_input]})
+            return response_obj["messages"][-1].content 
+    except Exception as e:
+        return f"Error generating response: {e}"
+
+def chat_content():
+    """Handles the main chat interaction (gets input, invokes graph, adds messages)."""
+    user_input = get_user_input()
     if not user_input:
         return
 
     st.session_state["messages"].append({"role": "user", "content": user_input})
 
-    if st.session_state["use_feedback_graph"] and st.session_state["graph_fb"] is not None:
-        graph = st.session_state["graph_fb"]
-        try:
-            response_obj = graph.invoke(
-                {"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"],
-                 "questions": [user_input]})
-            response = response_obj["response"]
-        except Exception as e:
-            response = f"Error generating feedback: {e}"
-
-    elif st.session_state["use_qa_graph"] and st.session_state["graph_qa"] is not None:
-        graph = st.session_state["graph_qa"]
-        try:
-            response_obj = graph.invoke({"questions": [user_input]},
-                                        config=st.session_state["config"])
-            if "end_responses" in response_obj and response_obj["end_responses"]:
-                response = response_obj["end_responses"][-1]
-            else:
-                response = "No response found."
-        except Exception as e:
-            response = f"Error generating response: {e}"
-
-    else:
-        graph = st.session_state["graph_sc"]
-        try:
-            response_obj = graph.invoke({"messages": [user_input]})
-            response = response_obj["messages"][-1].content
-        except Exception as e:
-            response = f"Error generating response: {e}"
-
+    graph, graph_type = get_graph()
+    response = invoke_graph(graph, user_input, graph_type)
     st.session_state["messages"].append({"role": "assistant", "content": response})
 
 
