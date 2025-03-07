@@ -63,6 +63,13 @@ LLM Integration – Connected multiple LLMs (GPT-4o, GPT-4o-mini, Claude 3.5 Son
 
 Retrieval Development – Implemented a retrieval mechanism to fetch relevant document information.
 
+Mid-Term and Final Presentation – Prepared presentation for project milestones.
+
+Review Pull-Requests – Conducted code reviews and provided feedback.
+
+Multi-Agent System Design – Developed logic for managing multiple LLMs dynamically.
+
+
 # Jannek's Contribution
 
 Final Feedback - Final usage mode for accept/reject recommendation and follow up questions.
@@ -71,9 +78,22 @@ Meeting Transcriptions - created bullet points from various meetings to form cle
 
 Application Structure Planning - design of the application structure and modes.
 
-Prompt Engineering - Assisted  Shohrukhbek in engineering prompts for final feedback mode to give the role of an assistant reviewer. Also with emphasis on giving a recommendation instead of making a decision.
+Prompt Engineering - Engineered prompts in final feedback mode to handle follow up questions and conditional edges.
 
 Documentation - README documentation and setup guide.
+
+# Shohrukhbek's Contribution
+
+Code Refactoring - Restructured the project (src/ directory, submodules etc.), centralized configuration (config.py), extracted helper functions (utils/helpers.py), and refactored chat_content ([pending merge](https://git.rwth-aachen.de/i5/teaching/bllma-lab/ws2024/magic-conches/-/merge_requests/5)) for improved readability and maintainability.
+
+Prompt Engineering - Developed the prompt for final feedback generation, defining LLM role, output structure, and ensuring contextual relevance.
+
+Pre-built Questions - Implemented the pre-built question feature to guide users and ensure comprehensive reviews (UI integration and logic).
+
+Architectural Participation - Participated in architectural discussions, focusing on modularity, state management and code maintainability.
+
+Mid-Term Presentation - Prepared the mid-term project presentation.
+
 
 # Tsan-Yu's Contribution
 
@@ -84,4 +104,6 @@ Memory Development - Implemented the component where the chat history is summeri
 Memory Integration - Connected the memory component to the application.
 
 Prompt Engineering - Made the question-answering feedback more critical instead of always positive/cheerful.
+
+Application Structure Planning - design of the application structure and modes.
 
