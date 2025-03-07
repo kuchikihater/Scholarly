@@ -9,6 +9,7 @@ from typing_extensions import TypedDict, List, Any
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
+from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import AnyMessage, HumanMessage
 
 from langchain_openai import ChatOpenAI
@@ -25,7 +26,7 @@ def initialization():
         qa_list: list
         response: str
         final_feedback: str
-        flag: int 
+        flag: int
 
     def extract_json_output(response: str):
         json_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
@@ -36,10 +37,11 @@ def initialization():
     graph_builder = StateGraph(State)
     llm = ChatOpenAI(model="gpt-4o")
 
+    memory = MemorySaver()
+
     def check_generation_feedback(state: State):
         response = "yes" if state.get("flag", 0) == 1 else "no"
-        return {"response": response}
-    
+        return response
 
     def discuss_paper(state: State):
         prompt = PromptTemplate.from_template(
@@ -61,7 +63,7 @@ def initialization():
         summary = state["summary"]
         qa_list = state["qa_list"]
         query = state["questions"][-1]
-        
+
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query})
         state["response"] = response
@@ -90,8 +92,11 @@ def initialization():
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"query": query})
         response_json = extract_json_output(response)
-        response = "yes" if response_json["feedback"] == "yes" else "no"
-        return {"response": response}
+        response = "yes" if response_json["feedback"] == "yes" else "yes"
+        return response
+
+    def placeholder(state: State):
+        return {"summary": state["summary"]}
 
     def final_feedback(state: State):
         prompt = PromptTemplate.from_template(
@@ -138,9 +143,8 @@ def initialization():
         response = chain.invoke({"summary": summary, "qa_list": qa_list})
         state["final_feedback"] = response
         state["response"] = response
-        state["flag"] = 1  
-        return {"final_feedback": response, "response": response}
-    
+        return {"final_feedback": response, "response": response, "flag": 1}
+
     def follow_up_questions(state: State):
         prompt = PromptTemplate.from_template(
             """
@@ -171,31 +175,30 @@ def initialization():
         query = state["questions"][-1]
 
         chain = prompt | llm | StrOutputParser()
-        response = chain.invoke({"final_feedback": final_feedback, "summary": summary, "qa_list": qa_list, "query": query})
-    
+        response = chain.invoke(
+            {"final_feedback": final_feedback, "summary": summary, "qa_list": qa_list, "query": query})
+
         state["response"] = response
         return {"response": response}
 
-    graph_builder.add_node("flag_check", check_generation_feedback)
     graph_builder.add_node("followup_question", follow_up_questions)
-    graph_builder.add_node("feedback_or_questions", more_questions_or_not)
+    graph_builder.add_node("placeholder", placeholder)
     graph_builder.add_node("discuss_paper", discuss_paper)
     graph_builder.add_node("final_feedback_generation", final_feedback)
 
-    graph_builder.add_edge(START, "flag_check")
     graph_builder.add_conditional_edges(
-        "flag_check", 
-        check_generation_feedback, 
-        {"yes": "followup_question", "no": "feedback_or_questions"}
+        START,
+        check_generation_feedback,
+        {"yes": "followup_question", "no": "placeholder"}
     )
     graph_builder.add_conditional_edges(
-        "feedback_or_questions", 
-        more_questions_or_not, 
+        "placeholder",
+        more_questions_or_not,
         {"no": "discuss_paper", "yes": "final_feedback_generation"}
     )
     graph_builder.add_edge("followup_question", END)
     graph_builder.add_edge("discuss_paper", END)
     graph_builder.add_edge("final_feedback_generation", END)
 
-    graph = graph_builder.compile()
+    graph = graph_builder.compile(checkpointer=memory)
     return graph
