@@ -82,6 +82,19 @@ Prompt Engineering - Assisted  Shohrukhbek in engineering prompts for final feed
 
 Documentation - README documentation and setup guide.
 
+# Shohrukhbek's Contribution
+
+Code Refactoring - Restructured the project (src/ directory, submodules etc.), centralized configuration (config.py), extracted helper functions (utils/helpers.py), and refactored chat_content ([pending merge](https://git.rwth-aachen.de/i5/teaching/bllma-lab/ws2024/magic-conches/-/merge_requests/5)) for improved readability and maintainability.
+
+Prompt Engineering - Developed the prompt for final feedback generation, defining LLM role, output structure, and ensuring contextual relevance.
+
+Pre-built Questions - Implemented the pre-built question feature to guide users and ensure comprehensive reviews (UI integration and logic).
+
+Architectural Participation - Participated in architectural discussions, focusing on modularity, state management and code maintainability.
+
+Mid-Term Presentation - Prepared the mid-term project presentation.
+
+
 # Tsan-Yu's Contribution
 
 Paper Finding - Found a relevant research that supports the idea of LLMs as helpful peer reviewers.
