@@ -84,7 +84,7 @@ Documentation - README documentation and setup guide.
 
 # Shohrukhbek's Contribution
 
-Code Refactoring - Restructured the project (src/ directory, submodules etc.), centralized configuration (config.py), extracted helper functions (utils/helpers.py), and refactored chat_content ([pending merge](https://git.rwth-aachen.de/i5/teaching/bllma-lab/ws2024/magic-conches/-/merge_requests/5)) for improved readability and maintainability.
+Code Refactoring - ([pending merge](https://git.rwth-aachen.de/i5/teaching/bllma-lab/ws2024/magic-conches/-/merge_requests/5)) Restructured the project (src/ directory, submodules etc.), centralized configuration (config.py), extracted helper functions (utils/helpers.py), and refactored chat_content in src/app.py for improved readability and maintainability.
 
 Prompt Engineering - Developed the prompt for final feedback generation, defining LLM role, output structure, and ensuring contextual relevance.
 
