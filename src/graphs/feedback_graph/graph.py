@@ -1,17 +1,17 @@
 from typing import Annotated
 import operator
-import re
-import json
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from typing_extensions import TypedDict, List, Any
+from typing_extensions import TypedDict, List
 
 from langgraph.graph import StateGraph, START, END
-from langgraph.graph.message import add_messages
-from langchain_core.messages import AnyMessage, HumanMessage
+from langchain_core.messages import HumanMessage
 
 from langchain_openai import ChatOpenAI
+
+from src.config import OPENAI_MODEL_GPT4O
+from src.utils.helpers import extract_json_output
 
 from dotenv import load_dotenv
 
@@ -27,16 +27,10 @@ def initialization():
         final_feedback: str
 
 
-    def extract_json_output(response: str):
-        json_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
-        json_string = json_match.group(1).strip()
-        parsed_json = json.loads(json_string)
-        return parsed_json
-
     graph_builder = StateGraph(State)
-    llm = ChatOpenAI(model="gpt-4o")
+    llm = ChatOpenAI(model=OPENAI_MODEL_GPT4O)
 
-    def discuss_paper(state: State):
+    def answer_follow_up_question(state: State):
         prompt = PromptTemplate.from_template(
             """
             You are a scientific peer reviewer. The user wants to discuss a research paper before making a final decision.
@@ -62,9 +56,10 @@ def initialization():
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query})
         state["response"] = response
+        
         return {"response": response}
 
-    def more_questions_or_not(state: State):
+    def should_generate_final_feedback(state: State):
         prompt = PromptTemplate.from_template(
             """
             Your task is to determine if the user wants to get final decision or feedback about acceptance of paper or ask
@@ -92,13 +87,7 @@ def initialization():
 
         return "yes" if response_json["feedback"] == "yes" else "no"
 
-    def check_generation(state):
-        if state["flag"] == 0:
-                return "more questions"
-        else:
-            return "question about feedback"
-
-    def final_feedback(state: State):
+    def generate_final_feedback(state: State):
         prompt = PromptTemplate.from_template(
             """
             You are an AI Assistant tasked with providing a recommendation on whether a scientific paper should be published.
@@ -142,19 +131,18 @@ def initialization():
         response = chain.invoke({"summary": summary, "qa_list": qa_list})
         state["final_feedback"] = response
         state["response"] = response
+
         return {"final_feedback": response, "response": response}
 
-    graph_builder.add_node("discuss_paper", discuss_paper)
-    graph_builder.add_node("Finale Feedback node", final_feedback)
+    graph_builder.add_node("Discuss Paper", answer_follow_up_question)
+    graph_builder.add_node("Final Feedback Node", generate_final_feedback)
 
     graph_builder.add_conditional_edges(
         START,
-        more_questions_or_not,
-        {"no": "discuss_paper", "yes": "Finale Feedback node"},
+        should_generate_final_feedback,
+        {"no": "Discuss Paper", "yes": "Final Feedback Node"},
     )
-    graph_builder.add_edge("Finale Feedback node", END)
+    graph_builder.add_edge("Final Feedback Node", END)
 
     graph = graph_builder.compile()
     return graph
-
-

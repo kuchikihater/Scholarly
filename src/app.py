@@ -2,9 +2,9 @@ import uuid
 import streamlit as st
 from dotenv import load_dotenv
 
-from question_answer_graph import initialization as qa_initialization
-from simple_conversation import initialization as simple_conversation_initialization
-from final_feedback_conversation import initialization as final_feedback_conversation_initialization
+from graphs.qa_graph.graph import initialization as qa_initialization
+from graphs.sc_graph.graph import initialization as simple_conversation_initialization
+from graphs.feedback_graph.graph import initialization as final_feedback_conversation_initialization
 
 from streamlit_float import *
 

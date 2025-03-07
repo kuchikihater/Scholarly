@@ -9,6 +9,8 @@ from langgraph.graph.message import add_messages
 
 from langchain_openai import ChatOpenAI
 
+from src.config import OPENAI_MODEL_GPT4O_MINI
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,7 +26,7 @@ def initialization():
 
     graph_builder = StateGraph(State)
 
-    llm = ChatOpenAI(model="gpt-4o-mini")
+    llm = ChatOpenAI(model=OPENAI_MODEL_GPT4O_MINI)
 
 
     def chatbot(state: State):

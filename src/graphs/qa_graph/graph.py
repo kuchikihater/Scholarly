@@ -1,6 +1,4 @@
 import os
-import re
-import json
 
 from typing_extensions import List, TypedDict, Annotated, Any
 from dotenv import load_dotenv
@@ -15,7 +13,6 @@ from langchain.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import FAISS
 
-from langchain.vectorstores import DocArrayInMemorySearch
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -25,7 +22,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import tool
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains.llm import LLMChain
 from langchain_core.prompts import ChatPromptTemplate
 
 from langgraph.graph import START, END, StateGraph, MessagesState
@@ -33,23 +29,13 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.types import Send
 
+from src.config import *
+from src.utils.helpers import *
+
 load_dotenv()
 
 
 def initialization(file: str):
-    ###Extract output from tags in string format
-    def extract_json_output(response: str):
-        json_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
-        json_string = json_match.group(1).strip()
-        parsed_json = json.loads(json_string)
-        return parsed_json
-
-    ###Extract output from tags in string format
-    def extract_str_output(response: str):
-        str_match = re.search(r"<output>(.*?)</output>", response, re.DOTALL)
-        str_string = str_match.group(1).strip()
-        return str_string
-
     class OverallState(MessagesState):
         questions: Annotated[List[HumanMessage], operator.add]
         llms_responses: Annotated[List[Any], operator.add]
@@ -67,12 +53,14 @@ def initialization(file: str):
         summary: str
 
 
-    llm = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
-    llm1 = ChatOpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY"))
-    llm2 = ChatOpenAI(model="gpt-4o-mini", api_key=os.getenv("OPENAI_API_KEY"))
-    llm3 = ChatAnthropic(model="claude-3-5-sonnet-20241022", api_key=os.getenv("ANTHROPIC_API_KEY"))
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+    llm = ChatOpenAI(model=OPENAI_MODEL_GPT4O_MINI, api_key=openai_api_key)
+    llm1 = ChatOpenAI(model=OPENAI_MODEL_GPT4O, api_key=openai_api_key)
+    llm2 = ChatOpenAI(model=OPENAI_MODEL_GPT4O_MINI, api_key=openai_api_key)
+    llm3 = ChatAnthropic(model=ANTHROPIC_MODEL, api_key=anthropic_api_key)
     llms = [llm1, llm2, llm3]
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=os.getenv("OPENAI_API_KEY"))
+    embeddings = OpenAIEmbeddings(model=OPENAI_MODEL_EMBEDDING, api_key=openai_api_key)
     loader = PyPDFLoader(file_path=file, extract_images=True)
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=3500, chunk_overlap=0)
     docs = loader.load()
@@ -96,16 +84,16 @@ def initialization(file: str):
     bm25_retriever = BM25Retriever.from_documents(
         all_splits
     )
-    bm25_retriever.k = 2
+    bm25_retriever.k = BM25_K
     embedding = OpenAIEmbeddings()
     faiss_vectorstore = FAISS.from_documents(
         all_splits, embedding
     )
-    faiss_retriever = faiss_vectorstore.as_retriever(search_kwargs={"k": 2})
+    faiss_retriever = faiss_vectorstore.as_retriever(search_kwargs={"k": FAISS_K})
 
     # initialize the ensemble retriever
     ensemble_retriever = EnsembleRetriever(
-        retrievers=[bm25_retriever, faiss_retriever], weights=[0.5, 0.5]
+        retrievers=[bm25_retriever, faiss_retriever], weights=ENSEMBLE_WEIGHTS
     )
 
     memory = MemorySaver()
