@@ -32,7 +32,7 @@ def chat_content():
         try:
             response_obj = graph.invoke(
                 {"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"],
-                 "questions": [user_input]})
+                 "questions": [user_input]}, config=st.session_state["config"])
             response = response_obj["response"]
         except Exception as e:
             response = f"Error generating feedback: {e}"
