@@ -146,19 +146,26 @@ def initialization(file: str):
                 key != "summary") + "\n\n" + doc.page_content for doc in tool_messages[0].artifact
         )
 
+
         prompt = PromptTemplate.from_template("""
-        You are an assistant for question-answering tasks. See yourself as a professional peer reviewer that gives critical feedback.
+        You are a professional reviewer in a peer review process. 
+        Provide a concise yet critical assessment of the given text, focusing on its clarity, logical coherence, depth of analysis, and originality. 
+        Identify key strengths and weaknesses, offering constructive suggestions for improvement. 
+        Maintain a professional and objective tone, ensuring your feedback is both insightful and actionable
         Use the following pieces of retrieved context to answer the question. Use three sentences maximum and keep the answer concise.
-        If the question relates to the previous conversation, use the conversation summary to provide the answer. Otherwise, use the retrieved documents and the paper summary.
+        If the question relates to the previous conversation, use the conversation summary to provide the answer. 
+        Otherwise, use the retrieved documents and the paper summary.
 
         For example: if you get questions such as "What is my last question?" -Use conversation summary to provide the answer.
         If you get questions such as "What is the authors of paper?" - Use retrieved documents and the paper summary.
         
-        If you're using the retrieved documents and the question is about the quality of the paper, remember your role as a professional peer reviewer and BE CRITICAL.
+        If you're using the retrieved documents and the question is about the quality of the paper, 
+        remember your role as a professional peer reviewer and BE CRITICAL.
         In this case, you can also think a bit before you give an critical answer. DO NOT SAY LET ME THINK, BE PROFESSIONAL
         
         For example: The question: "Does this paper fulfill the criterion to be published?" - This is about the quality of the paper.
-        Whereas questions like: "What is the authors of paper?" - This is a question about facts in the paper, just give the answer you can find in the source.
+        Whereas questions like: 
+        "What is the authors of paper?" - This is a question about facts in the paper, just give the answer you can find in the source.
          
         Here are the retrieved documents:
         <documents>
@@ -179,10 +186,8 @@ def initialization(file: str):
         <conversation_summary>
         {summary} 
         </conversation_summary>
-
-
         """
-                                              )
+        )
 
         question = state["user_question"]
 
@@ -439,14 +444,6 @@ def initialization(file: str):
         return {"messages": [HumanMessage(content=extract_str_output(response))],
                 "questions": [extract_str_output(response)], "attempt": state["attempt"] + 1}
 
-    def start_generate_llms(state: OverallState):
-        return {}
-
-    def continue_to_generate_llms(state: OverallState):
-        summary = state.get("summary", "")
-        return [Send("Single LLM Process Start",
-                     {"messages_one_llm": state["messages"], "response": "", "user_question": state["questions"][-1],
-                      "llm": llm}) for llm in llms]
 
     def end_response(state: OverallState):
         """
@@ -479,8 +476,9 @@ def initialization(file: str):
     def generate_summary(state: OverallState):
         prompt = PromptTemplate.from_template(
             """
-            Your task is to summarize the whole conversation so far, including the user quesiton, the
-            ai response and the previous summary if available. The summarization should also serve as memory such that when the user asks about information mentioned above, it can be used to answer such questions. The followings are the information you need:
+            Your task is to summarize the whole conversation so far, including the user quesiton, the ai response and the previous summary if available. 
+            The summarization should also serve as memory such that when the user asks about information mentioned above, it can be used to answer such questions. 
+            The followings are the information you need:
 
             1. Here is the user question:
             <question>
@@ -497,7 +495,8 @@ def initialization(file: str):
             {summary}
             </summary>
 
-            If the summary is empty, just ignore it. Otherwise, pass the questions and responses that are in summary already into the new summary as well. Combine the information you have and summarize it into a maximal-200-word summary.
+            If the summary is empty, just ignore it. Otherwise, pass the questions and responses that are in summary already into the new summary as well. 
+            Combine the information you have and summarize it into a maximal-200-word summary.
             """
         )
 
