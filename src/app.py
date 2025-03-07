@@ -16,7 +16,7 @@ from langchain_openai import ChatOpenAI
 
 from graphs.qa_graph.graph import GraphBuilder
 from graphs.sc_graph.graph import initialization as simple_conversation_initialization
-from graphs.feedback_graph.graph import initialization as final_feedback_conversation_initialization
+from graphs.feedback_graph.graph import GraphBuilder as FinalGraphBuilder
 
 
 from streamlit_float import *
@@ -135,6 +135,18 @@ def qa_initialization(file_path):
 
     return graph, result
 
+def ff_initialization(file_path):
+    """Initialize QA graph with the uploaded document."""
+    import tempfile
+
+    # Load and process the document
+    llm = ChatOpenAI(model_name="gpt-4o")
+
+    graph_builder = FinalGraphBuilder(llm)
+    graph = graph_builder.build()
+
+    return graph
+
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
@@ -220,7 +232,7 @@ with col_left:
 with col_right:
     st.subheader("Final Feedback")
     if st.button("Generate Feedback"):
-        st.session_state["graph_fb"] = final_feedback_conversation_initialization()
+        st.session_state["graph_fb"] = ff_initialization()
         st.session_state["use_feedback_graph"] = True
         st.session_state["use_qa_graph"] = False
         st.success("Feedback graph initialized. Now all questions go to the Final Feedback mode!")

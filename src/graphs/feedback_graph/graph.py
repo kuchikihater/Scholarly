@@ -20,17 +20,11 @@ class GraphBuilder:
 
         # Initialize node classes
         self.followup_question = FollowUpQuestionNode(llm)
-        self.che = ResponseNodes(llm)
-        self.llm_processing_nodes = LLMProcessingNodes()
-        self.retriever_tools = RetrievalTools(ensemble_retriever, llm)
-        self.retrieval_nodes = RetrievalNodes(llm, self.llms, self.retriever_tools.get_tools())
 
-        # Build subgraph
-        self.single_llm_subgraph = SingleLLMSubgraph(self.llm_processing_nodes).build()
 
     def build(self):
         """Build the main graph."""
-        graph_builder = StateGraph(OverallState)
+        graph_builder = StateGraph(State)
 
         # Add nodes
         graph_builder.add_node("Make Hypothesis", self.hypothesis_nodes.make_hypothesis)
