@@ -8,31 +8,43 @@ from src.graphs.feedback_graph.state import State
 llm = ChatOpenAI(model=OPENAI_MODEL_GPT4O)
 
 
-def answer_follow_up_question(state: State):
-    prompt = PromptTemplate.from_template(
-        """
-        You are a scientific peer reviewer. The user wants to discuss a research paper before making a final decision.
-        Use the provided summary and Q&A list to answer the user's questions. 
-        It also can be final_feedback be provided, but if place between tags <final_feedback> is empty, DO NOT pay attention
+class FollowUpQuestionNode:
+    def __init__(self, llm):
+        self.llm = llm
 
-        Here is the summary of the paper:
-        {summary}
+    def follow_up_questions(self, state: State):
+        prompt = PromptTemplate.from_template(
+            """
+            You are a subreviewer for a peer reviewing of a research paper continuing a scientific peer review discussion. The user has already received final feedback on a research paper 
+            but now has follow-up questions.
 
-        Here is the Q&A list about the paper:
-        {qa_list}
+            Here is the final feedback that was provided by you:
+            {final_feedback}
 
-        Here is the user question:
-        {query}
-        """
-    )
+            Here is the summary of the paper:
+            {summary}
 
-    summary = state["summary"]
-    qa_list = state["qa_list"]
-    query = state["questions"][-1]
-    ff = state.get("final_feedback", "")
+            Here is the Q&A list from the previous discussion:
+            {qa_list}
 
-    chain = prompt | llm | StrOutputParser()
-    response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query})
-    state["response"] = response
+            Here is the user's follow-up question:
+            {query}
 
-    return {"response": response}
+            Answer the follow-up question clearly, referring to the final feedback, summary, and Q&A list where relevant.
+            If necessary, clarify any points from the final feedback. Keep the response precise and helpful.
+            Do not be afraid to also highlight positive AND negative points from your feedback.
+            """
+        )
+
+        summary = state["summary"]
+        qa_list = state["qa_list"]
+        final_feedback = state["final_feedback"]
+        query = state["questions"][-1]
+
+        chain = prompt | self.llm | StrOutputParser()
+        response = chain.invoke(
+            {"final_feedback": final_feedback, "summary": summary, "qa_list": qa_list, "query": query})
+
+        state["response"] = response
+        return {"response": response}
+
