@@ -105,3 +105,5 @@ Memory Integration - Connected the memory component to the application.
 
 Prompt Engineering - Made the question-answering feedback more critical instead of always positive/cheerful.
 
+Application Structure Planning - design of the application structure and modes.
+
