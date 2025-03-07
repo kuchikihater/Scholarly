@@ -63,6 +63,13 @@ LLM Integration – Connected multiple LLMs (GPT-4o, GPT-4o-mini, Claude 3.5 Son
 
 Retrieval Development – Implemented a retrieval mechanism to fetch relevant document information.
 
+Mid-Term and Final Presentation – Prepared presentation for project milestones.
+
+Review Pull-Requests – Conducted code reviews and provided feedback.
+
+Multi-Agent System Design – Developed logic for managing multiple LLMs dynamically.
+
+
 # Jannek's Contribution
 
 Final Feedback - Final usage mode for accept/reject recommendation and follow up questions.
