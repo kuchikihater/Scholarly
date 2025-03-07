@@ -99,7 +99,7 @@ Mid-Term Presentation - Prepared the mid-term project presentation.
 
 Paper Finding - Found a relevant research that supports the idea of LLMs as helpful peer reviewers.
 
-Memory Development - Implemented the component where the chat history is summerized and the length of messages is controlled.
+Memory Development - Implemented the component where the chat history is summarized and the length of messages is controlled.
 
 Memory Integration - Connected the memory component to the application.
 
