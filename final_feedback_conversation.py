@@ -69,16 +69,16 @@ def initialization():
         state["response"] = response
         return {"response": response}
 
-    def more_questions_or_not(state: State):
+    def generate_feedback_or_not(state: State):
         prompt = PromptTemplate.from_template(
             """
             Your task is to determine if the user wants to get final decision or feedback about acceptance of paper or ask
-            follow-up questions
+            further questions about the paper.
 
             User input:
             {query}
             
-            If the user is about to make final decision or feedback, return:
+            If the user wants you to make final decision or feedback, return:
             {{ "feedback": "yes" }}
 
             If the user question is something else, return:
@@ -92,10 +92,10 @@ def initialization():
         chain = prompt | llm | StrOutputParser()
         response = chain.invoke({"query": query})
         response_json = extract_json_output(response)
-        response = "yes" if response_json["feedback"] == "yes" else "yes"
+        response = "yes" if response_json["feedback"] == "yes" else "no"
         return response
 
-    def placeholder(state: State):
+    def get_summary(state: State):
         return {"summary": state["summary"]}
 
     def final_feedback(state: State):
@@ -182,18 +182,18 @@ def initialization():
         return {"response": response}
 
     graph_builder.add_node("followup_question", follow_up_questions)
-    graph_builder.add_node("placeholder", placeholder)
+    graph_builder.add_node("generate_feedback_or_not", get_summary)
     graph_builder.add_node("discuss_paper", discuss_paper)
     graph_builder.add_node("final_feedback_generation", final_feedback)
 
     graph_builder.add_conditional_edges(
         START,
         check_generation_feedback,
-        {"yes": "followup_question", "no": "placeholder"}
+        {"yes": "followup_question", "no": "generate_feedback_or_not"}
     )
     graph_builder.add_conditional_edges(
-        "placeholder",
-        more_questions_or_not,
+        "generate_feedback_or_not",
+        generate_feedback_or_not,
         {"no": "discuss_paper", "yes": "final_feedback_generation"}
     )
     graph_builder.add_edge("followup_question", END)
