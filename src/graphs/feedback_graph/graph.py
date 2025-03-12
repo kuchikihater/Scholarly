@@ -1,13 +1,13 @@
 from langgraph.graph import START, END, StateGraph
-from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 
+from .nodes.follow_up_decision import FollowUpDecisionNode
+from .nodes.follow_up_question import FollowUpQuestionNode
+from .nodes.pre_feedback_question import PreFeedbackQuestionNode
+from .nodes.pre_feedback_decision import PreFeedbackDecisionNode
+from .nodes.final_feedback import FinalFeedbackNode
+
 from .state import State
-from .nodes.answer_follow_up_question import FollowUpQuestionNode
-from .nodes.check_generation_feedback import CheckGenerationFeedback
-from .nodes.discuss_paper import DiscussPaper
-from .nodes.final_feedback_generation import GenerateFinalFeedback
-from .nodes.check_paper_discussion import CheckPaperDiscussion
 
 
 class GraphBuilder:
@@ -19,47 +19,41 @@ class GraphBuilder:
         self.memory = MemorySaver()
 
         # Initialize node classes
-        self.followup_question = FollowUpQuestionNode(llm)
+        self.follow_up_question_node = FollowUpQuestionNode(llm)
+        self.pre_feedback_question_node = PreFeedbackQuestionNode(llm)
+        self.follow_up_decision_node = FollowUpDecisionNode()
+        self.pre_feedback_decision_node = PreFeedbackDecisionNode(llm)
+        self.final_feedback_node = FinalFeedbackNode(llm)
 
 
     def build(self):
         """Build the main graph."""
         graph_builder = StateGraph(State)
-
+        
         # Add nodes
-        graph_builder.add_node("Make Hypothesis", self.hypothesis_nodes.make_hypothesis)
-        graph_builder.add_node("Direct Answer or Retrieve", self.retrieval_nodes.retrieve_or_not)
-        graph_builder.add_node("Retrieve Documents", ToolNode([self.retriever_tools.get_tools()]))
-        graph_builder.add_node("Single LLM Process Start", self.single_llm_subgraph)
-        graph_builder.add_node("Rewrite User Question", self.retrieval_nodes.rewrite_user_question)
-        graph_builder.add_node("Give End Response", self.response_nodes.end_response)
-        graph_builder.add_node("Give Simple Response", self.response_nodes.generate_simple_response)
-        graph_builder.add_node("Generate Summary", self.response_nodes.generate_summary)
+        graph_builder.add_node("answer_follow_up", self.follow_up_question_node.answer_follow_up_question)
+        graph_builder.add_node("check_pre_feedback", self.pre_feedback_decision_node.get_summary)
+        graph_builder.add_node("answer_pre_feedback_question", self.pre_feedback_question_node.answer_question)
+        graph_builder.add_node("generate_final_feedback", self.final_feedback_node.generate_feedback)
 
         # Add conditional edges
-        graph_builder.add_edge(START,"Make Hypothesis")
-
-        graph_builder.add_edge("Make Hypothesis", "Direct Answer or Retrieve")
-
         graph_builder.add_conditional_edges(
-            "Direct Answer or Retrieve",
-            tools_condition,
-            {END: "Give Simple Response", "tools": "Retrieve Documents"},
+            START,
+            self.follow_up_decision_node.should_answer_follow_up,
+            {"yes": "answer_follow_up", "no": "check_pre_feedback"}
+        )
+        graph_builder.add_conditional_edges(
+            "check_pre_feedback",
+            self.pre_feedback_decision_node.should_generate_feedback,
+            {"no": "answer_pre_feedback_question", "yes": "generate_final_feedback"}
         )
 
-        graph_builder.add_conditional_edges(
-            "Retrieve Documents",
-            self.retrieval_nodes.evaluate_documents,
-            {"Single LLM Process Start": "Single LLM Process Start", "Rewrite User Question": "Rewrite User Question"},
-        )
-
-        graph_builder.add_edge("Rewrite User Question", "Direct Answer or Retrieve")
-        graph_builder.add_edge("Single LLM Process Start", "Give End Response")
-        graph_builder.add_edge("Give End Response", "Generate Summary")
-        graph_builder.add_edge("Generate Summary", END)
-        graph_builder.add_edge("Give Simple Response", END)
+        # Add edges
+        graph_builder.add_edge("answer_follow_up", END)
+        graph_builder.add_edge("answer_pre_feedback_question", END)
+        graph_builder.add_edge("generate_final_feedback", END)
 
         # Compile graph
         graph = graph_builder.compile(checkpointer=self.memory)
-
+        
         return graph

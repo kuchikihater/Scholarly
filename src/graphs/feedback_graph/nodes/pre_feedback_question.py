@@ -1,18 +1,16 @@
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 
-from src.graphs.config import OPENAI_MODEL_GPT4O
 from src.graphs.feedback_graph.state import State
 
-llm = ChatOpenAI(model=OPENAI_MODEL_GPT4O)
 
-
-class DiscussPaper:
+class PreFeedbackQuestionNode:
     def __init__(self, llm):
+        """Initialize with LLM model."""
         self.llm = llm
 
-    def discuss_paper(self, state: State):
+    def answer_question(self, state: State):
+        """Answer user's questions before generating a final feedback."""
         prompt = PromptTemplate.from_template(
             """
             You are a scientific peer reviewer. The user wants to discuss a research paper before making a final decision.
@@ -35,8 +33,7 @@ class DiscussPaper:
 
         chain = prompt | self.llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list, "query": query})
+
         state["response"] = response
+
         return {"response": response}
-
-
-

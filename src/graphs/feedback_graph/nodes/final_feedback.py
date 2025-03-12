@@ -1,18 +1,16 @@
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 
-from src.graphs.config import OPENAI_MODEL_GPT4O
 from src.graphs.feedback_graph.state import State
 
-llm = ChatOpenAI(model=OPENAI_MODEL_GPT4O)
 
-
-class GenerateFinalFeedback:
+class FinalFeedbackNode:
     def __init__(self, llm):
+        """Initialize with LLM model."""
         self.llm = llm
 
-    def final_feedback(self, state: State):
+    def generate_feedback(self, state: State):
+        """Generate a final feedback."""
         prompt = PromptTemplate.from_template(
             """
             You are an AI Assistant tasked with providing a recommendation on whether a scientific paper should be published.
@@ -55,8 +53,8 @@ class GenerateFinalFeedback:
 
         chain = prompt | self.llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list})
+
         state["final_feedback"] = response
         state["response"] = response
+
         return {"final_feedback": response, "response": response, "flag": 1}
-
-

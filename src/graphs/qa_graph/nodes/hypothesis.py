@@ -3,7 +3,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
 from ..state import OverallState
-from ...utils.helpers import extract_json_output
 
 
 class HypothesisNodes:

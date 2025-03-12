@@ -1,18 +1,16 @@
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 
-from src.graphs.config import OPENAI_MODEL_GPT4O
 from src.graphs.feedback_graph.state import State
-
-llm = ChatOpenAI(model=OPENAI_MODEL_GPT4O)
 
 
 class FollowUpQuestionNode:
     def __init__(self, llm):
+        """Initialize with LLM model."""
         self.llm = llm
 
-    def follow_up_questions(self, state: State):
+    def answer_follow_up_question(self, state: State):
+        """Answer user's follow-up questions after final feedback generation."""
         prompt = PromptTemplate.from_template(
             """
             You are a subreviewer for a peer reviewing of a research paper continuing a scientific peer review discussion. The user has already received final feedback on a research paper 
@@ -46,5 +44,5 @@ class FollowUpQuestionNode:
             {"final_feedback": final_feedback, "summary": summary, "qa_list": qa_list, "query": query})
 
         state["response"] = response
-        return {"response": response}
 
+        return {"response": response}

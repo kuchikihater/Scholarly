@@ -14,10 +14,13 @@ from langchain_core.prompts import ChatPromptTemplate
 
 from langchain_openai import ChatOpenAI
 
-from graphs.qa_graph.graph import GraphBuilder
-from graphs.sc_graph.graph import initialization as simple_conversation_initialization
+from graphs.qa_graph.graph import GraphBuilder as IntermediateGraphBuilder
+from graphs.sc_graph.graph import GraphBuilder as InitialGraphBuilder
 from graphs.feedback_graph.graph import GraphBuilder as FinalGraphBuilder
 
+from .utils.llm_provider import *
+
+from .config import BM25_K, FAISS_K, ENSEMBLE_WEIGHTS
 
 from streamlit_float import *
 
@@ -81,10 +84,18 @@ def chat_content():
     st.session_state["messages"].append({"role": "assistant", "content": response})
 
 
+def sc_initialization():
+    """Initialize Simple Conversation Graph."""
+    llm = get_openai_llm(model_name=OPENAI_MODEL_GPT4O_MINI)
+
+    graph_builder = InitialGraphBuilder(llm)
+    graph = graph_builder.build()
+
+    return graph
+
+
 def qa_initialization(file_path):
     """Initialize QA graph with the uploaded document."""
-    import tempfile
-
     # Load and process the document
     loader = PyPDFLoader(file_path)
     documents = loader.load()
@@ -93,10 +104,10 @@ def qa_initialization(file_path):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=3500, chunk_overlap=0)
     docs = text_splitter.split_documents(documents)
 
-    llm = ChatOpenAI(model_name="gpt-4o")
-    llm1 = ChatOpenAI(model_name="gpt-4o-mini")
-    llm2 = ChatOpenAI(model_name="gpt-4o")
-    llm3 = ChatAnthropic(model_name="claude-3-5-sonnet-20241022")
+    llm = get_openai_llm()
+    llm1 = get_openai_llm(model_name=OPENAI_MODEL_GPT4O_MINI)
+    llm2 = get_openai_llm()
+    llm3 = get_anthropic_llm()
 
     prompt = ChatPromptTemplate.from_messages(
         [("system", "Write a concise summary of the following:\\n\\n{context}")]
@@ -116,31 +127,27 @@ def qa_initialization(file_path):
     faiss_vectorstore = FAISS.from_documents(
         docs, embeddings
     )
-    vectorstore = faiss_vectorstore.as_retriever(search_kwargs={"k": 2})
+    vectorstore = faiss_vectorstore.as_retriever(search_kwargs={"k": FAISS_K})
 
     bm25_retriever = BM25Retriever.from_documents(docs)
-    bm25_retriever.k = 2
-
-
+    bm25_retriever.k = BM25_K
 
     # Create ensemble retriever
     ensemble_retriever = EnsembleRetriever(
         retrievers=[vectorstore, bm25_retriever],
-        weights=[0.5, 0.5]
+        weights=ENSEMBLE_WEIGHTS
     )
 
     # Build the graph
-    graph_builder = GraphBuilder(llm, llm1, llm2, llm3, ensemble_retriever)
+    graph_builder = IntermediateGraphBuilder(llm, llm1, llm2, llm3, ensemble_retriever)
     graph = graph_builder.build()
 
     return graph, result
 
-def ff_initialization(file_path):
-    """Initialize QA graph with the uploaded document."""
-    import tempfile
 
-    # Load and process the document
-    llm = ChatOpenAI(model_name="gpt-4o")
+def ff_initialization():
+    """Initialize Final Feedback Graph."""
+    llm = get_openai_llm()
 
     graph_builder = FinalGraphBuilder(llm)
     graph = graph_builder.build()
@@ -152,7 +159,7 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
 if "graph_sc" not in st.session_state:
-    st.session_state["graph_sc"] = simple_conversation_initialization()
+    st.session_state["graph_sc"] = sc_initialization()
 
 if "use_qa_graph" not in st.session_state:
     st.session_state["use_qa_graph"] = False
