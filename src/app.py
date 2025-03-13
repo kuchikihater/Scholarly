@@ -6,13 +6,11 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import PyPDFLoader
-from langchain_anthropic import ChatAnthropic
 from langchain_community.vectorstores import FAISS
 from langchain.retrievers import EnsembleRetriever
 from langchain.retrievers import BM25Retriever
 from langchain_core.prompts import ChatPromptTemplate
 
-from langchain_openai import ChatOpenAI
 
 from graphs.qa_graph.graph import GraphBuilder as IntermediateGraphBuilder
 from graphs.sc_graph.graph import GraphBuilder as InitialGraphBuilder
@@ -57,7 +55,7 @@ def invoke_graph(graph, user_input, graph_type):
         if graph_type == "fb":
             response_obj = graph.invoke(
                 {"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"],
-                 "questions": [user_input]})
+                 "questions": [user_input]}, config=st.session_state["config"])
             return response_obj["response"]
         elif graph_type == "qa":
             response_obj = graph.invoke({"questions": [user_input]}, config=st.session_state["config"])
