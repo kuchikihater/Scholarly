@@ -1,7 +1,7 @@
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 
-from ..state import State
+from src.graphs.sc_graph.state import State
 
 
 class SimpleConversationNodes:

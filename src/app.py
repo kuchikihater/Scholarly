@@ -12,13 +12,13 @@ from langchain.retrievers import BM25Retriever
 from langchain_core.prompts import ChatPromptTemplate
 
 
-from graphs.qa_graph.graph import GraphBuilder as IntermediateGraphBuilder
-from graphs.sc_graph.graph import GraphBuilder as InitialGraphBuilder
-from graphs.feedback_graph.graph import GraphBuilder as FinalGraphBuilder
+from src.graphs.qa_graph.graph import GraphBuilder as IntermediateGraphBuilder
+from src.graphs.sc_graph.graph import GraphBuilder as InitialGraphBuilder
+from src.graphs.feedback_graph.graph import GraphBuilder as FinalGraphBuilder
 
-from .utils.llm_provider import *
+from src.utils.llm_provider import *
 
-from .config import BM25_K, FAISS_K, ENSEMBLE_WEIGHTS
+from src.config import BM25_K, FAISS_K, ENSEMBLE_WEIGHTS
 
 from streamlit_float import *
 
@@ -230,9 +230,9 @@ with col_left:
             on_submit=chat_content
         )
 
-        button_b_pos = "0rem"
-        button_css = float_css_helper(width="2.2rem", bottom=button_b_pos, transition=0)
-        float_parent(css=button_css)
+        # button_b_pos = "0rem"
+        # button_css = float_css_helper(width="2.2rem", bottom=button_b_pos, transition=0)
+        # float_parent(css=button_css)
 
 with col_right:
     st.subheader("Final Feedback")

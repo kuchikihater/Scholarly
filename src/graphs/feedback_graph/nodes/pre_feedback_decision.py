@@ -3,7 +3,7 @@ from langchain_core.prompts import PromptTemplate
 
 from src.graphs.feedback_graph.state import State
 
-from ....utils.extractors import extract_json_output
+from src.utils.extractors import extract_json_output
 
 
 class PreFeedbackDecisionNode:
@@ -40,7 +40,8 @@ class PreFeedbackDecisionNode:
         response = "yes" if response_json["feedback"] == "yes" else "no"
         
         return response
-    
+
+    @staticmethod
     def get_summary(state: State):
         """Retrieve paper summary from the session state."""
         return {"summary": state["summary"]}

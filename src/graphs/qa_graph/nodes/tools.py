@@ -4,7 +4,7 @@ from langchain_core.tools import tool, Tool
 from typing import Tuple, List
 from langchain_core.documents import Document
 
-from ..state import OverallState
+from src.graphs.qa_graph.state import OverallState
 
 
 class RetrievalTools:

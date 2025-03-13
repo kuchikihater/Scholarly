@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, START, END
 
-from .nodes.simple_conversation import SimpleConversationNodes
-from .state import State
+from src.graphs.sc_graph.nodes.simple_conversation import SimpleConversationNodes
+from src.graphs.sc_graph.state import State
 
 
 class GraphBuilder:

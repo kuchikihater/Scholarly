@@ -1,0 +1,26 @@
+# Virtual environments
+.venv/
+.venv_new/
+venv/
+env/
+
+# Git files
+.git/
+.gitignore
+
+# Cache and temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+.cache/
+*.egg-info/
+
+# IDE files
+.vscode/
+.idea/
+
+# Other files not needed in container
+README.md
+*.md
+*.ipynb
+tests/

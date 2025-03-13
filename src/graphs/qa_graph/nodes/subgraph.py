@@ -1,7 +1,6 @@
 from langgraph.graph import START, END, StateGraph
 
-from ..state import OneLLMState, OverallState
-
+from src.graphs.qa_graph.state import OverallState, OneLLMState
 
 class SingleLLMSubgraph:
     """Subgraph for processing with a single LLM."""
