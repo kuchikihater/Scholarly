@@ -18,7 +18,7 @@ setup(
         "langchain-community>=0.3.8",
         "langchain-core>=0.3.28",
         "langchain-text-splitters>=0.3.2",
-        "langgraph>=0.2.53",
+        "langgraph>=0.3.8",
         "python-dotenv>=1.0.1",
         "pypdf>=5.1.0",
         "openai>=1.55.3",
