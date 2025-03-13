@@ -1,10 +1,24 @@
 import uuid
 import streamlit as st
 from dotenv import load_dotenv
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
-from question_answer_graph import initialization as qa_initialization
-from simple_conversation import initialization as simple_conversation_initialization
-from final_feedback_conversation import initialization as final_feedback_conversation_initialization
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.document_loaders import PyPDFLoader
+from langchain_community.vectorstores import FAISS
+from langchain.retrievers import EnsembleRetriever
+from langchain.retrievers import BM25Retriever
+from langchain_core.prompts import ChatPromptTemplate
+
+
+from graphs.qa_graph.graph import GraphBuilder as IntermediateGraphBuilder
+from graphs.sc_graph.graph import GraphBuilder as InitialGraphBuilder
+from graphs.feedback_graph.graph import GraphBuilder as FinalGraphBuilder
+
+from .utils.llm_provider import *
+
+from .config import BM25_K, FAISS_K, ENSEMBLE_WEIGHTS
 
 from streamlit_float import *
 
@@ -14,57 +28,136 @@ st.set_page_config(layout="wide")
 float_init(theme=True, include_unstable_primary=False)
 
 
-def chat_content():
+def get_user_input():
+    """Gets user input from pre-built questions or chat input."""
     if st.session_state.get('prebuilt_question', ""):
         user_input = st.session_state.prebuilt_question
         st.session_state.prebuilt_questions.remove(st.session_state.prebuilt_question)
-        st.session_state.prebuilt_question = "" 
+        st.session_state.prebuilt_question = ""
     else:
         user_input = st.session_state.get('content', "").strip()
+    return user_input
 
+
+def get_graph():
+    """Selects the appropriate graph based on session state."""
+    if st.session_state["use_feedback_graph"] and st.session_state["graph_fb"] is not None:
+        return st.session_state["graph_fb"], "fb"
+    elif st.session_state["use_qa_graph"] and st.session_state["graph_qa"] is not None:
+        return st.session_state["graph_qa"], "qa"
+    else:
+        return st.session_state["graph_sc"], "sc"
+
+
+def invoke_graph(graph, user_input, graph_type):
+    """Invokes the appropriate graph and returns the response string."""
+    try:
+        if graph_type == "fb":
+            response_obj = graph.invoke(
+                {"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"],
+                 "questions": [user_input]}, config=st.session_state["config"])
+            return response_obj["response"]
+        elif graph_type == "qa":
+            response_obj = graph.invoke({"questions": [user_input]}, config=st.session_state["config"])
+            if "end_responses" in response_obj and response_obj["end_responses"]:
+                return response_obj["end_responses"][-1]
+            return "No response found."
+        else:
+            response_obj = graph.invoke({"messages": [user_input]})
+            return response_obj["messages"][-1].content
+    except Exception as e:
+        return f"Error generating response: {e}"
+
+
+def chat_content():
+    """Handles the main chat interaction (gets input, invokes graph, adds messages)."""
+    user_input = get_user_input()
     if not user_input:
         return
 
     st.session_state["messages"].append({"role": "user", "content": user_input})
 
-    if st.session_state["use_feedback_graph"] and st.session_state["graph_fb"] is not None:
-        graph = st.session_state["graph_fb"]
-        try:
-            response_obj = graph.invoke(
-                {"summary": st.session_state["summary"], "qa_list": st.session_state["custom_qas"],
-                 "questions": [user_input]}, config=st.session_state["config"])
-            response = response_obj["response"]
-        except Exception as e:
-            response = f"Error generating feedback: {e}"
-
-    elif st.session_state["use_qa_graph"] and st.session_state["graph_qa"] is not None:
-        graph = st.session_state["graph_qa"]
-        try:
-            response_obj = graph.invoke({"questions": [user_input]},
-                                        config=st.session_state["config"])
-            if "end_responses" in response_obj and response_obj["end_responses"]:
-                response = response_obj["end_responses"][-1]
-            else:
-                response = "No response found."
-        except Exception as e:
-            response = f"Error generating response: {e}"
-
-    else:
-        graph = st.session_state["graph_sc"]
-        try:
-            response_obj = graph.invoke({"messages": [user_input]})
-            response = response_obj["messages"][-1].content
-        except Exception as e:
-            response = f"Error generating response: {e}"
-
+    graph, graph_type = get_graph()
+    response = invoke_graph(graph, user_input, graph_type)
     st.session_state["messages"].append({"role": "assistant", "content": response})
+
+
+def sc_initialization():
+    """Initialize Simple Conversation Graph."""
+    llm = get_openai_llm(model_name=OPENAI_MODEL_GPT4O_MINI)
+
+    graph_builder = InitialGraphBuilder(llm)
+    graph = graph_builder.build()
+
+    return graph
+
+
+def qa_initialization(file_path):
+    """Initialize QA graph with the uploaded document."""
+    # Load and process the document
+    loader = PyPDFLoader(file_path)
+    documents = loader.load()
+
+    # Split into chunks for embedding
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=3500, chunk_overlap=0)
+    docs = text_splitter.split_documents(documents)
+
+    llm = get_openai_llm()
+    llm1 = get_openai_llm(model_name=OPENAI_MODEL_GPT4O_MINI)
+    llm2 = get_openai_llm()
+    llm3 = get_anthropic_llm()
+
+    prompt = ChatPromptTemplate.from_messages(
+        [("system", "Write a concise summary of the following:\\n\\n{context}")]
+    )
+
+    # Instantiate chain
+    chain = create_stuff_documents_chain(llm, prompt)
+
+    # Invoke chain
+    result = chain.invoke({"context": docs})
+
+    for doc in docs:
+        doc.metadata['summary'] = result
+
+    # Set up embeddings and retrievers
+    embeddings = OpenAIEmbeddings()
+    faiss_vectorstore = FAISS.from_documents(
+        docs, embeddings
+    )
+    vectorstore = faiss_vectorstore.as_retriever(search_kwargs={"k": FAISS_K})
+
+    bm25_retriever = BM25Retriever.from_documents(docs)
+    bm25_retriever.k = BM25_K
+
+    # Create ensemble retriever
+    ensemble_retriever = EnsembleRetriever(
+        retrievers=[vectorstore, bm25_retriever],
+        weights=ENSEMBLE_WEIGHTS
+    )
+
+    # Build the graph
+    graph_builder = IntermediateGraphBuilder(llm, llm1, llm2, llm3, ensemble_retriever)
+    graph = graph_builder.build()
+
+    return graph, result
+
+
+def ff_initialization():
+    """Initialize Final Feedback Graph."""
+    llm = get_openai_llm()
+
+    graph_builder = FinalGraphBuilder(llm)
+    graph = graph_builder.build()
+
+    return graph
 
 
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
 if "graph_sc" not in st.session_state:
-    st.session_state["graph_sc"] = simple_conversation_initialization()
+    st.session_state["graph_sc"] = sc_initialization()
 
 if "use_qa_graph" not in st.session_state:
     st.session_state["use_qa_graph"] = False
@@ -91,7 +184,7 @@ if "prebuilt_questions" not in st.session_state:
         "Does the paper provide a clear and insightful outlook for future research in this area?"
     ]
 
-st.title("Hey there! I'm Scholarly. Ready to review your paper and give you feedback. Let’s get started!")
+st.title("Hey there! I'm Scholarly. Ready to review your paper and give you feedback. Let's get started!")
 
 uploaded_file = st.file_uploader('Upload your paper in .pdf format', type="pdf")
 if uploaded_file is not None:
@@ -144,7 +237,7 @@ with col_left:
 with col_right:
     st.subheader("Final Feedback")
     if st.button("Generate Feedback"):
-        st.session_state["graph_fb"] = final_feedback_conversation_initialization()
+        st.session_state["graph_fb"] = ff_initialization()
         st.session_state["use_feedback_graph"] = True
         st.session_state["use_qa_graph"] = False
         st.success("Feedback graph initialized. Now all questions go to the Final Feedback mode!")
