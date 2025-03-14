@@ -153,7 +153,7 @@ Contributions are welcome! Please follow these steps:
     * **Mid-Term and Final Presentation** – Prepared presentation for project milestones.
     * **Review Pull-Requests** – Conducted code reviews and provided feedback.
     * **Multi-Agent System Design** – Developed logic for managing multiple LLMs dynamically.
-    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
+    * **Code Refactoring** -  Improved project structure, configuration, and maintainability.
 
 * **Jannek:**
     * **Final Feedback** - Final usage mode for accept/reject recommendation and follow up questions.
@@ -164,12 +164,12 @@ Contributions are welcome! Please follow these steps:
     * **Code Refactoring** - Restructured and troubleshooted Project codebase.
 
 * **Shohrukhbek:**
-    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
+    * **Code Refactoring** -  Improved project structure, configuration, and maintainability; refactored app.py and feedback_graph.
     * **Pre-built Questions** - Implemented UI integration and logic for pre-built questions.
-    * **Prompt Engineering** - Developed the prompt for final feedback generation, defining LLM role, output structure, and ensuring contextual relevance.
-    * **Dockerization** - Created Dockerfile and docker-compose.yml for containerized deployment.
-    * **Documentation** - Improved the README.md file, adding features list, project structure, setup instructions, usage guidelines and contribution information. 
-    * **Architectural Participation** - Participated in architectural discussions, focusing on modularity, state management and code maintainability.
+    * **Prompt Engineering** - Developed final feedback prompt, focusing on role, structure, and relevance.
+    * **Dockerization** - Created Dockerfile and yml file for containerized deployment.
+    * **Documentation** - Updated README.md with app features, setup, usage and contributions.
+    * **Architectural Participation** - Contributed to architectural discussions on code structure and maintainability.
     * **Mid-Term Presentation** - Prepared the mid-term project presentation.
 
 * **Tsan-Yu:**
