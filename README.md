@@ -161,7 +161,8 @@ Contributions are welcome! Please follow these steps:
     * **Prompt Engineering** - Engineered prompts in final feedback mode to handle follow up questions and conditional edges.
     * **Documentation** - README documentation and setup guide.
     * **Dockerization** - Dockerfile and docker-compose.yml for containerized deployment.
-    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
+    * **Code Refactoring** - Improved project structure, configuration, and maintainability.
+    * **Technical Report** - Formating and structuring of the final technical report.
 
 * **Shohrukhbek:**
     * **Code Refactoring** -  Improved project structure, configuration, and maintainability; refactored app.py and feedback_graph.
@@ -178,5 +179,6 @@ Contributions are welcome! Please follow these steps:
     * **Memory Integration** - Connected the memory component to the application.
     * **Prompt Engineering** - Made the question-answering feedback more critical instead of always positive/cheerful.
     * **Application Structure Planning** - design of the application structure and modes.
-    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
+    * **Code Refactoring** - Improved project structure, configuration, and maintainability.
+    * **Technical Report** - Formating and structuring of the final technical report.
 
