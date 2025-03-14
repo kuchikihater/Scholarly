@@ -162,12 +162,12 @@ Contributions are welcome! Please follow these steps:
     * **Documentation** - README documentation and setup guide.
 
 * **Shohrukhbek:**
-    * **Code Refactoring** - Refactored project (src/ directory, submodules), centralized configuration (config.py), extracted helper functions (utils/helpers.py), refactored chat_content in app.py, and refactored feedback_graph (renamed node functions/classes/files).
+    * **Code Refactoring** -  Improved project structure, configuration, and maintainability; refactored app.py and feedback_graph.
     * **Pre-built Questions** - Implemented UI integration and logic for pre-built questions.
-    * **Prompt Engineering** - Developed the prompt for final feedback generation, defining LLM role, output structure, and ensuring contextual relevance.
+    * **Prompt Engineering** - Prompt Engineering - Developed final feedback prompt, focusing on role, structure, and relevance.
     * **Dockerization** - Created Dockerfile and docker-compose.yml for containerized deployment.
-    * **Documentation** - Improved the README.md file, adding features list, project structure, setup instructions, usage guidelines and contribution information. 
-    * **Architectural Participation** - Participated in architectural discussions, focusing on modularity, state management and code maintainability.
+    * **Documentation** - Updated README.md with application features, setup, usage, and contributions.
+    * **Architectural Participation** - Contributed to architectural discussions on code structure, state management and maintainability.
     * **Mid-Term Presentation** - Prepared the mid-term project presentation.
 
 * **Tsan-Yu:**
