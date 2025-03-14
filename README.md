@@ -153,16 +153,18 @@ Contributions are welcome! Please follow these steps:
     * **Mid-Term and Final Presentation** – Prepared presentation for project milestones.
     * **Review Pull-Requests** – Conducted code reviews and provided feedback.
     * **Multi-Agent System Design** – Developed logic for managing multiple LLMs dynamically.
+    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
 
 * **Jannek:**
     * **Final Feedback** - Final usage mode for accept/reject recommendation and follow up questions.
-    * **Meeting Transcriptions** - created bullet points from various meetings to form clear guidelines.
     * **Application Structure Planning** - design of the application structure and modes.
     * **Prompt Engineering** - Engineered prompts in final feedback mode to handle follow up questions and conditional edges.
     * **Documentation** - README documentation and setup guide.
+    * **Dockerization** - Dockerfile and docker-compose.yml for containerized deployment.
+    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
 
 * **Shohrukhbek:**
-    * **Code Refactoring** - Refactored project (src/ directory, submodules), centralized configuration (config.py), extracted helper functions (utils/helpers.py), refactored chat_content in app.py, and refactored feedback_graph (renamed node functions/classes/files).
+    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
     * **Pre-built Questions** - Implemented UI integration and logic for pre-built questions.
     * **Prompt Engineering** - Developed the prompt for final feedback generation, defining LLM role, output structure, and ensuring contextual relevance.
     * **Dockerization** - Created Dockerfile and docker-compose.yml for containerized deployment.
@@ -176,4 +178,5 @@ Contributions are welcome! Please follow these steps:
     * **Memory Integration** - Connected the memory component to the application.
     * **Prompt Engineering** - Made the question-answering feedback more critical instead of always positive/cheerful.
     * **Application Structure Planning** - design of the application structure and modes.
+    * **Code Refactoring** - Restructured and troubleshooted Project codebase.
 
