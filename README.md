@@ -39,7 +39,7 @@ The project is organized with a clear and maintainable structure:
 *   Python 3.9+
 *   pip
 *   Docker (optional, but recommended)
-*   API keys for OpenAI and Anthropic (and Langchain, only for tracing)
+*   API keys for OpenAI and Anthropic (and LangSmith, only for tracing)
 
 ### Installation
 
