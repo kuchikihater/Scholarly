@@ -7,7 +7,7 @@ services:
     ports:
       - "8501:8501"  
     volumes:
-      - ./src:/app/src
+      - .:/app
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}  
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}  

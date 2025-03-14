@@ -1,10 +1,8 @@
 from functools import wraps
 
-from langchain_core.tools import tool, Tool
+from langchain_core.tools import tool
 from typing import Tuple, List
 from langchain_core.documents import Document
-
-from src.graphs.qa_graph.state import OverallState
 
 
 class RetrievalTools:

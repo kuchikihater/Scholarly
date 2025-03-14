@@ -40,8 +40,10 @@ class PreFeedbackDecisionNode:
         response = "yes" if response_json["feedback"] == "yes" else "no"
         
         return response
-
+    
+    
     @staticmethod
     def get_summary(state: State):
         """Retrieve paper summary from the session state."""
+        
         return {"summary": state["summary"]}

@@ -54,7 +54,5 @@ class FinalFeedbackNode:
         chain = prompt | self.llm | StrOutputParser()
         response = chain.invoke({"summary": summary, "qa_list": qa_list})
 
-        state["final_feedback"] = response
-        state["response"] = response
 
         return {"final_feedback": response, "response": response, "flag": 1}
