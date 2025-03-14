@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # LLM models
 OPENAI_MODEL_GPT4O = "gpt-4o"

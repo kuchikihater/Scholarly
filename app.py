@@ -179,7 +179,7 @@ if "prebuilt_questions" not in st.session_state:
     st.session_state.prebuilt_questions = [
         "Is the title concise, informative, and accurately reflects the paper's content?",
         "Have all authors listed appropriately and contributed significantly to the research?",
-        "Is the methodology for detecting money laundering clearly and concisely described?",
+        "Is the methodology clearly and concisely described?",
         "Are the findings of the research adequately discussed and analyzed?",
         "Does the paper provide a clear and insightful outlook for future research in this area?"
     ]

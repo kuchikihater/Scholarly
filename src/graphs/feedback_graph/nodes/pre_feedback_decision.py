@@ -41,6 +41,9 @@ class PreFeedbackDecisionNode:
         
         return response
     
+    
+    @staticmethod
     def get_summary(state: State):
         """Retrieve paper summary from the session state."""
+        
         return {"summary": state["summary"]}
