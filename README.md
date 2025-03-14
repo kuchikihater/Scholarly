@@ -27,10 +27,10 @@
 The project is organized with a clear and maintainable structure:
 
 *   **`src/`:**  Contains all the application's Python code.
-*   **`src/app.py`:** The main Streamlit application file.
 *   **`src/graphs/`:** Contains subdirectories for each LangGraph graph (QA, Simple Conversation, Final Feedback). Each graph has its own `graph.py` and, optionally, `nodes/` and `state.py` files.
 *   **`src/utils/`:**  Contains utility functions.
 *   **`src/config.py`:** Centralized configuration for API keys, model names, and other settings.
+*   **`app.py`:** The main Streamlit application file.
 *   **`.env_example`:**  An example file demonstrating the required environment variables.  *Never* commit your actual `.env` file with API keys.
 *   **`Dockerfile` and `docker-compose.yml`:** Files for containerized deployment using Docker.
 
@@ -121,10 +121,11 @@ This is the recommended way to run the application, as it ensures a consistent e
 ## Usage
 
 1.  **Start in Conversation Mode:** You can begin by engaging in a general conversation with the LLM.
-2.  **Upload a Paper:**  Use the file uploader in the sidebar to upload a research paper in PDF format.
+2.  **Upload a Paper:**  Use the file uploader to upload a research paper in PDF format.
 3.  **Ask Questions:** Once a paper is uploaded, you can ask questions about it. You can type your own questions or use the pre-built questions to guide your analysis.
-4.  **Generate Feedback:** Request a final feedback summary, including a recommendation for acceptance or rejection.
-5.  **Follow-Up:** Ask follow-up questions about the generated feedback.
+4.  **Save Question & Answer Pairs:** Save your favorite Question & Answer pairs on the right hand side by entering them into the form.
+5.  **Generate Feedback:** Request a final feedback for a recommendation for acceptance or rejection.
+6.  **Follow-Up:** Ask follow-up questions about the generated feedback.
 
 ## Contributing
 
