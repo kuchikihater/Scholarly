@@ -162,11 +162,11 @@ Contributions are welcome! Please follow these steps:
     * **Documentation** - README documentation and setup guide.
 
 * **Shohrukhbek:**
-    * **Code Refactoring** - ([pending merge](https://git.rwth-aachen.de/i5/teaching/bllma-lab/ws2024/magic-conches/-/merge_requests/5)) Refactored project (src/ directory, submodules), centralized configuration (config.py), extracted helper functions (utils/helpers.py), refactored chat_content in app.py, and refactored feedback_graph (renamed node functions/classes/files).
+    * **Code Refactoring** - Refactored project (src/ directory, submodules), centralized configuration (config.py), extracted helper functions (utils/helpers.py), refactored chat_content in app.py, and refactored feedback_graph (renamed node functions/classes/files).
     * **Pre-built Questions** - Implemented UI integration and logic for pre-built questions.
     * **Prompt Engineering** - Developed the prompt for final feedback generation, defining LLM role, output structure, and ensuring contextual relevance.
     * **Dockerization** - Created Dockerfile and docker-compose.yml for containerized deployment.
-    * **Documentation** - Significantly improved the README.md file, adding features list, project structure, setup instructions, usage guidelines, and contribution information. 
+    * **Documentation** - Improved the README.md file, adding features list, project structure, setup instructions, usage guidelines and contribution information. 
     * **Architectural Participation** - Participated in architectural discussions, focusing on modularity, state management and code maintainability.
     * **Mid-Term Presentation** - Prepared the mid-term project presentation.
 
