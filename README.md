@@ -164,10 +164,10 @@ Contributions are welcome! Please follow these steps:
 * **Shohrukhbek:**
     * **Code Refactoring** -  Improved project structure, configuration, and maintainability; refactored app.py and feedback_graph.
     * **Pre-built Questions** - Implemented UI integration and logic for pre-built questions.
-    * **Prompt Engineering** - Prompt Engineering - Developed final feedback prompt, focusing on role, structure, and relevance.
-    * **Dockerization** - Created Dockerfile and docker-compose.yml for containerized deployment.
-    * **Documentation** - Updated README.md with application features, setup, usage, and contributions.
-    * **Architectural Participation** - Contributed to architectural discussions on code structure, state management and maintainability.
+    * **Prompt Engineering** - Developed final feedback prompt, focusing on role, structure, and relevance.
+    * **Dockerization** - Created Dockerfile and yml file for containerized deployment.
+    * **Documentation** - Updated README.md with app features, setup, usage and contributions.
+    * **Architectural Participation** - Contributed to architectural discussions on code structure and maintainability.
     * **Mid-Term Presentation** - Prepared the mid-term project presentation.
 
 * **Tsan-Yu:**
