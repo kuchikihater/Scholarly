@@ -183,18 +183,18 @@ Contributions are welcome! Please follow these steps:
 * **Jannek:**
     * **Final Feedback** - Final usage mode for accept/reject recommendation and follow up questions.
     * **Application Structure Planning** - design of the application structure and modes.
-    * **Prompt Engineering** - Engineered prompts in final feedback mode to handle follow up questions and conditional edges.
-    * **Documentation** - README documentation and setup guide.
+    * **Prompt Engineering** - Engineered various prompts in final feedback mode.
+    * **Documentation** - README documentation.
     * **Dockerization** - Dockerfile and docker-compose.yml for containerized deployment.
     * **Code Refactoring** - Improved project structure, configuration, and maintainability.
-    * **Technical Report** - Formating and structuring of the final technical report.
+    * **Technical Report** - Formating, structuring, and proofreading of the final technical report.
 
 * **Shohrukhbek:**
     * **Code Refactoring** -  Improved project structure, configuration, and maintainability; refactored app.py and feedback_graph.
     * **Pre-built Questions** - Implemented UI integration and logic for pre-built questions.
     * **Prompt Engineering** - Developed final feedback prompt, focusing on role, structure, and relevance.
     * **Dockerization** - Created Dockerfile and yml file for containerized deployment.
-    * **Documentation** - Updated README.md with app features, architecture, setup, usage and team contributions.
+    * **Documentation** - README documentation.
     * **Architectural Participation** - Contributed to architectural discussions on code structure and maintainability.
     * **Mid-Term Presentation** - Prepared the mid-term project presentation.
 
@@ -205,5 +205,5 @@ Contributions are welcome! Please follow these steps:
     * **Prompt Engineering** - Made the question-answering feedback more critical instead of always positive/cheerful.
     * **Application Structure Planning** - design of the application structure and modes.
     * **Code Refactoring** - Improved project structure, configuration, and maintainability.
-    * **Technical Report** - Formating and structuring of the final technical report.
+    * **Technical Report** - Formating, structuring, and proofreading of the final technical report.
 
