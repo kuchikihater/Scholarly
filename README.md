@@ -22,12 +22,36 @@
     *   Modular design with a clear separation of concerns (graph structure, state management, services, utilities).
     *   Ready for future expansion and feature additions.
 
+
+## Architecture
+
+The Scholarly application is built upon a modular architecture, leveraging Streamlit for the user interface and LangChain/LangGraph for the core language model interactions. The application flow can be broadly divided into three main modes, managed by separate LangGraphs:
+
+1.  **Simple Conversation Mode:** This initial mode provides a basic chatbot interface, allowing users to engage in a general conversation with an LLM before uploading a document. This mode uses a simple LangGraph with a single node.
+
+2.  **Question & Answer (QA) Mode:** This is the core mode for interacting with uploaded research papers.  It uses a more complex LangGraph, incorporating the following key steps:
+
+    *   **Hypothesis Generation:**  The system analyzes the user's question to determine whether document retrieval is necessary.
+    *   **Retrieval Decision:** Based on the hypothesis, the system either proceeds to document retrieval or attempts to answer the question directly from the conversation history.
+    *   **Document Retrieval:** If retrieval is required, an `EnsembleRetriever` (combining BM25 keyword search and FAISS vector-based semantic search) fetches relevant passages from the uploaded PDF.
+    *   **Document Relevance Assessment:** The retrieved document chunks are evaluated for relevance to the user's question.
+    *   **Query Improvement (if needed):** If the retrieved documents are not relevant, the user's question can be rewritten to improve retrieval results.
+    *   **Response Generation:**  Multiple LLMs (OpenAI's GPT-4o and GPT-4o-mini, and Anthropic's Claude 3.5 Sonnet) generate answers based on the retrieved context, the paper summary, and the conversation history.
+    *   **Response Combination:** The multiple LLM responses are combined into a single, coherent answer.
+    * **Summary generation:** Creates and updates summary of the conversation.
+
+3.  **Final Feedback Mode:** This mode allows the user to request a final review summary and recommendation (Accept/Reject) for the paper.  It includes:
+    *   **Decision Point:** Checks if the user is requesting final feedback or asking further questions.
+    *   **Feedback Generation:** If final feedback is requested, an LLM generates a structured review, including a recommendation, a conversation summary, reasoning, and suggestions for improvement.
+    *   **Follow-Up Questions:**  Allows the user to ask follow-up questions about the generated feedback.
+
+
 ## Project Structure
 
 The project is organized with a clear and maintainable structure:
 
-*   **`src/`:**  Contains all the application's Python code.
-*   **`src/app.py`:** The main Streamlit application file.
+*   **`app.py`:** The main Streamlit application file.
+*   **`src/`:**  Contains the application's Python code.
 *   **`src/graphs/`:** Contains subdirectories for each LangGraph graph (QA, Simple Conversation, Final Feedback). Each graph has its own `graph.py` and, optionally, `nodes/` and `state.py` files.
 *   **`src/utils/`:**  Contains utility functions.
 *   **`src/config.py`:** Centralized configuration for API keys, model names, and other settings.
@@ -169,7 +193,7 @@ Contributions are welcome! Please follow these steps:
     * **Pre-built Questions** - Implemented UI integration and logic for pre-built questions.
     * **Prompt Engineering** - Developed final feedback prompt, focusing on role, structure, and relevance.
     * **Dockerization** - Created Dockerfile and yml file for containerized deployment.
-    * **Documentation** - Updated README.md with app features, setup, usage and contributions.
+    * **Documentation** - Updated README.md with app features, architecture, setup, usage and team contributions.
     * **Architectural Participation** - Contributed to architectural discussions on code structure and maintainability.
     * **Mid-Term Presentation** - Prepared the mid-term project presentation.
 
