@@ -12,13 +12,13 @@ from langchain.retrievers import BM25Retriever
 from langchain_core.prompts import ChatPromptTemplate
 
 
-from graphs.qa_graph.graph import GraphBuilder as IntermediateGraphBuilder
-from graphs.sc_graph.graph import GraphBuilder as InitialGraphBuilder
-from graphs.feedback_graph.graph import GraphBuilder as FinalGraphBuilder
+from src.graphs.qa_graph.graph import GraphBuilder as IntermediateGraphBuilder
+from src.graphs.sc_graph.graph import GraphBuilder as InitialGraphBuilder
+from src.graphs.feedback_graph.graph import GraphBuilder as FinalGraphBuilder
 
-from .utils.llm_provider import *
+from src.utils.llm_provider import *
 
-from .config import BM25_K, FAISS_K, ENSEMBLE_WEIGHTS
+from src.config import BM25_K, FAISS_K, ENSEMBLE_WEIGHTS
 
 from streamlit_float import *
 

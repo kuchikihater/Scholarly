@@ -3,7 +3,7 @@ from langchain_core.prompts import PromptTemplate
 
 from src.graphs.feedback_graph.state import State
 
-from ....utils.extractors import extract_json_output
+from src.utils.extractors import extract_json_output
 
 
 class PreFeedbackDecisionNode:

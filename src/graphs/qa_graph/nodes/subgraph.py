@@ -1,6 +1,6 @@
 from langgraph.graph import START, END, StateGraph
 
-from ..state import OneLLMState, OverallState
+from src.graphs.qa_graph.state import OneLLMState, OverallState
 
 
 class SingleLLMSubgraph:
