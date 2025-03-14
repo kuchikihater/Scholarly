@@ -153,6 +153,7 @@ Contributions are welcome! Please follow these steps:
     * **Mid-Term and Final Presentation** – Prepared presentation for project milestones.
     * **Review Pull-Requests** – Conducted code reviews and provided feedback.
     * **Multi-Agent System Design** – Developed logic for managing multiple LLMs dynamically.
+    * **Code Refactoring** -  Improved project structure, configuration, and maintainability.
 
 * **Jannek:**
     * **Final Feedback** - Final usage mode for accept/reject recommendation and follow up questions.
